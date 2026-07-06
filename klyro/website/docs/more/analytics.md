@@ -77,7 +77,7 @@ If you say "no", analytics will be permanently disabled.
 ### Sample analytics data
 
 To get a better sense of what type of data is collected, you can review some
-[sample analytics logs](https://github.com/klyro-ai/klyro/blob/main/klyro/website/assets/sample-analytics.jsonl).
+[sample analytics logs](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/assets/sample-analytics.jsonl).
 These are the last 1,000 analytics events from the author's
 personal use of klyro, updated regularly.
 
@@ -117,7 +117,7 @@ Klyro uses PostHog for analytics collection. You can configure klyro to send ana
 If you have concerns about any of the analytics that klyro is collecting
 or our data practices
 please contact us by opening a
-[GitHub Issue](https://github.com/klyro-ai/klyro/issues).
+[GitHub Issue](https://github.com/RavindraTirlangi/Klyro/issues).
 
 ## Privacy policy
 

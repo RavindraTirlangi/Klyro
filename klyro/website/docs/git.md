@@ -50,7 +50,7 @@ By default, klyro creates commit messages which follow
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
 
 You can customize the
-[commit prompt](https://github.com/Klyro-AI/klyro/blob/main/klyro/prompts.py#L5)
+[commit prompt](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/prompts.py#L5)
 with the `--commit-prompt` option.
 You can place that on the command line, or 
 [configure it via a config file or environment variables](https://klyro.chat/docs/config.html).

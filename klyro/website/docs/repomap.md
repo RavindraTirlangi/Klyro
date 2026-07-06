@@ -29,9 +29,9 @@ It shows how each of these symbols are defined, by including the critical lines 
 
 Here's a part of
 the repo map of klyro's repo, for
-[base_coder.py](https://github.com/Klyro-AI/klyro/blob/main/klyro/coders/base_coder.py)
+[base_coder.py](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/coders/base_coder.py)
 and
-[commands.py](https://github.com/Klyro-AI/klyro/blob/main/klyro/commands.py)
+[commands.py](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/commands.py)
 :
 
 ```

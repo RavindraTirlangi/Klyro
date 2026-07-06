@@ -177,7 +177,7 @@ To run the project locally, follow these steps:
 
 ```
 # Clone the repository
-git clone git@github.com:Klyro-AI/klyro.git
+git clone git@github.com:RavindraTirlangi/Klyro.git
 
 # Navigate to the project directory
 cd klyro
@@ -243,7 +243,7 @@ release.
 People often ask which LLMs I use with klyro, when writing klyro.
 Below is a table showing the models I have used recently,
 extracted from the 
-[public log](https://github.com/klyro-ai/klyro/blob/main/klyro/website/assets/sample-analytics.jsonl)
+[public log](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/assets/sample-analytics.jsonl)
 of my
 [klyro analytics](https://klyro.chat/docs/more/analytics.html).
 
@@ -284,7 +284,7 @@ tr:hover { background-color: #f5f5f5; }
 [Klyro is tightly integrated with git](/docs/git.html) so all
 of klyro's code changes are committed to the repo with proper attribution.
 The 
-[stats are computed](https://github.com/Klyro-AI/klyro/blob/main/scripts/blame.py)
+[stats are computed](https://github.com/RavindraTirlangi/Klyro/blob/main/scripts/blame.py)
 by doing something like `git blame` on the repo,
 and counting up who wrote all the new lines of code in each release.
 Only lines in source code files are counted, not documentation or prompt files.
@@ -371,9 +371,9 @@ Your edits and klyro's edits might conflict.
 
 Klyro AI LLC is the company behind the klyro AI coding tool.
 Klyro is 
-[open source and available on GitHub](https://github.com/Klyro-AI/klyro)
+[open source and available on GitHub](https://github.com/RavindraTirlangi/Klyro)
 under an 
-[Apache 2.0 license](https://github.com/Klyro-AI/klyro/blob/main/LICENSE.txt).
+[Apache 2.0 license](https://github.com/RavindraTirlangi/Klyro/blob/main/LICENSE.txt).
 
 ## Can I Script Klyro?
 

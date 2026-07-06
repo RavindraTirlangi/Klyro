@@ -122,7 +122,7 @@ These settings will be merged with any model-specific settings, with the
 Below are all the pre-configured model settings to give a sense for the settings which are supported.
 
 You can also look at the `ModelSettings` class in
-[models.py](https://github.com/Klyro-AI/klyro/blob/main/klyro/models.py)
+[models.py](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/models.py)
 file for more details about all of the model setting that klyro supports.
 
 The first entry shows all the settings, with their default values.

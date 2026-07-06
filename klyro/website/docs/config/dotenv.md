@@ -26,7 +26,7 @@ If the files above exist, they will be loaded in that order. Files loaded last w
 
 Below is a sample `.env` file, which you
 can also
-[download from GitHub](https://github.com/Klyro-AI/klyro/blob/main/klyro/website/assets/sample.env).
+[download from GitHub](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/assets/sample.env).
 
 <!--[[[cog
 from klyro.args import get_sample_dotenv

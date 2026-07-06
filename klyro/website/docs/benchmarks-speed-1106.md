@@ -20,7 +20,7 @@ and there's a lot
 of interest about their capabilities and performance.
 With that in mind, I've been benchmarking the new models.
 
-[Klyro](https://github.com/Klyro-AI/klyro)
+[Klyro](https://github.com/RavindraTirlangi/Klyro)
 is an open source command line chat tool that lets you work with GPT to edit
 code in your local git repo.
 Klyro relies on a

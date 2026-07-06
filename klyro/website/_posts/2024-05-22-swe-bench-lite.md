@@ -76,7 +76,7 @@ The held out "acceptance tests" were *only* used
 after benchmarking to compute statistics on which problems klyro
 correctly resolved.
 
-The [full harness to run klyro on SWE Bench Lite is available on GitHub](https://github.com/Klyro-AI/klyro-swe-bench).
+The [full harness to run klyro on SWE Bench Lite is available on GitHub](https://github.com/RavindraTirlangi/Klyro-swe-bench).
 
 The benchmarking process was similar to how a developer might use klyro to
 resolve a GitHub issue:

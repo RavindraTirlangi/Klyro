@@ -218,7 +218,7 @@ def check_streamlit_install(io):
 def write_streamlit_credentials():
     from streamlit.file_util import get_streamlit_file_path
 
-    # See https://github.com/Klyro-AI/klyro/issues/772
+    # See https://github.com/RavindraTirlangi/Klyro/issues/772
 
     credential_path = Path(get_streamlit_file_path()) / "credentials.toml"
     if not os.path.exists(credential_path):
@@ -252,7 +252,7 @@ def launch_gui(args):
         "--server.runOnSave=false",
     ]
 
-    # https://github.com/Klyro-AI/klyro/issues/2193
+    # https://github.com/RavindraTirlangi/Klyro/issues/2193
     is_dev = "-dev" in str(__version__)
 
     if is_dev:

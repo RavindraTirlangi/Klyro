@@ -30,7 +30,7 @@ exclude:
 
 aux_links:
   "GitHub":
-    - "https://github.com/Klyro-AI/klyro"
+    - "https://github.com/RavindraTirlangi/Klyro"
   "Discord":
     - "https://discord.gg/Y7X7bhMQFV"
   "Blog":
@@ -38,11 +38,11 @@ aux_links:
 
 nav_external_links:
   - title: "GitHub"
-    url: "https://github.com/Klyro-AI/klyro"
+    url: "https://github.com/RavindraTirlangi/Klyro"
   - title: "Discord"
     url: "https://discord.gg/Y7X7bhMQFV"
 
-repository: Klyro-AI/klyro
+repository: RavindraTirlangi/Klyro
 
 callouts:
   tip:

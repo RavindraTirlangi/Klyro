@@ -170,7 +170,7 @@ Reasoning models often have specific requirements for these settings:
 | `use_system_prompt` | Whether to use system prompt | Some reasoning models don't support system prompts |
 
 It may be helpful to find one of the 
-[existing model setting configuration entries](https://github.com/Klyro-AI/klyro/blob/main/klyro/resources/model-settings.yml)
+[existing model setting configuration entries](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/resources/model-settings.yml)
 for the model you are interested in, say o3-mini:
 
 ```yaml

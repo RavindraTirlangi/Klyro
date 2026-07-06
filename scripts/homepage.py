@@ -282,8 +282,8 @@ def generate_badges_md(downloads, stars, klyro_percentage):
     # Round klyro percentage to whole number
     klyro_percent_rounded = round(klyro_percentage)
 
-    markdown = f"""  <a href="https://github.com/Klyro-AI/klyro/stargazers"><img alt="GitHub Stars" title="{GITHUB_STARS_TOOLTIP}"
-src="https://img.shields.io/github/stars/Klyro-AI/klyro?style=flat-square&logo=github&color=f1c40f&labelColor=555555"/></a>
+    markdown = f"""  <a href="https://github.com/RavindraTirlangi/Klyro/stargazers"><img alt="GitHub Stars" title="{GITHUB_STARS_TOOLTIP}"
+src="https://img.shields.io/github/stars/RavindraTirlangi/Klyro?style=flat-square&logo=github&color=f1c40f&labelColor=555555"/></a>
   <a href="https://pypi.org/project/klyro-chat/"><img alt="PyPI Downloads" title="{PYPI_DOWNLOADS_TOOLTIP}"
 src="https://img.shields.io/badge/📦%20Installs-{downloads_formatted}-2ecc71?style=flat-square&labelColor=555555"/></a>
   <img alt="Tokens per week" title="{TOKENS_WEEKLY_TOOLTIP}"
@@ -386,7 +386,7 @@ def get_badges_html():
     klyro_percent_rounded = round(percentage)
 
     # Generate HTML badges
-    html = f"""<a href="https://github.com/Klyro-AI/klyro" class="github-badge badge-stars" title="{GITHUB_STARS_TOOLTIP}">
+    html = f"""<a href="https://github.com/RavindraTirlangi/Klyro" class="github-badge badge-stars" title="{GITHUB_STARS_TOOLTIP}">
     <span class="badge-label">⭐ GitHub Stars</span>
     <span class="badge-value">{stars_formatted}</span>
 </a>

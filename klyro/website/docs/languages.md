@@ -33,7 +33,7 @@ then it should be possible to add repo map support.
 To build a repo map, klyro needs the `tags.scm` file
 from the given language's tree-sitter grammar.
 If you can find and share that file in a 
-[GitHub issue](https://github.com/Klyro-AI/klyro/issues),
+[GitHub issue](https://github.com/RavindraTirlangi/Klyro/issues),
 then it may be possible to add repo map support.
 
 If klyro doesn't already support linting your language, 

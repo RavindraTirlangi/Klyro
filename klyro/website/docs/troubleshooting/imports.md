@@ -50,7 +50,7 @@ klyro uses.
 
 In particular, be careful with the packages with pinned versions 
 noted at the end of
-[klyro's requirements.in file](https://github.com/Klyro-AI/klyro/blob/main/requirements/requirements.in).
+[klyro's requirements.in file](https://github.com/RavindraTirlangi/Klyro/blob/main/requirements/requirements.in).
 These versions are pinned because klyro is known not to work with the
 latest versions of these libraries.
 

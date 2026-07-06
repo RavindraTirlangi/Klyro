@@ -40,7 +40,7 @@ read: [CONVENTIONS.md, anotherfile.txt, thirdfile.py]
 
 Below is a sample of the YAML config file, which you
 can also
-[download from GitHub](https://github.com/Klyro-AI/klyro/blob/main/klyro/website/assets/sample.klyro.conf.yml).
+[download from GitHub](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/assets/sample.klyro.conf.yml).
 
 <!--[[[cog
 from klyro.args import get_sample_yaml

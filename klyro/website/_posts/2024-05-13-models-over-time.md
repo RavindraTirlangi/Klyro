@@ -15,7 +15,7 @@ nav_exclude: true
 I recently wanted to draw a graph showing how LLM code editing skill has been
 changing over time as new models have been released by OpenAI, Anthropic and others.
 I have all the
-[data in a YAML file](https://github.com/Klyro-AI/klyro/blob/main/website/_data/edit_leaderboard.yml) that is used to render
+[data in a YAML file](https://github.com/RavindraTirlangi/Klyro/blob/main/website/_data/edit_leaderboard.yml) that is used to render
 [klyro's LLM leaderboards](https://klyro.chat/docs/leaderboards/).
 
 Below is the klyro chat transcript, which shows:

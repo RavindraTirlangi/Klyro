@@ -31,7 +31,7 @@ commit [a7db0df](https://github.com/BerriAI/litellm/commit/a7db0df0434bfbac2b68e
 This change was released in litellm v1.67.1.
 Klyro picked up this change April 28, 2025 when it upgraded its litellm dependency 
 from v1.65.7 to v1.67.4.post1
-in commit [9351f37](https://github.com/Klyro-AI/klyro/commit/9351f37).
+in commit [9351f37](https://github.com/RavindraTirlangi/Klyro/commit/9351f37).
 That dependency change shipped on May 5, 2025 in klyro v0.82.3.
 
 Unfortunately the 03-25 version of Gemini 2.5 Pro Preview is no longer available,
@@ -56,9 +56,9 @@ loaded the correct cost data from its database and made use of it during the ben
 Every klyro benchmark report contains the git commit hash of the klyro repository state used to
 run the benchmark.
 The 
-[benchmark run in question](https://github.com/Klyro-AI/klyro/blob/edbfec0ce4e1fe86735c915cb425b0d8636edc32/klyro/website/_data/polyglot_leaderboard.yml#L814)
+[benchmark run in question](https://github.com/RavindraTirlangi/Klyro/blob/edbfec0ce4e1fe86735c915cb425b0d8636edc32/klyro/website/_data/polyglot_leaderboard.yml#L814)
 was built from 
-commit [0282574](https://github.com/Klyro-AI/klyro/commit/0282574).
+commit [0282574](https://github.com/RavindraTirlangi/Klyro/commit/0282574).
 
 Additional runs of the benchmark from that build verified that the error in litellm's
 model cost database appears not to have been a factor:
@@ -80,7 +80,7 @@ relevant source.
 
 - 2025-04-04 19:54:45 UTC (Sat Apr 5 08:54:45 2025 +1300)
   - Correct value `"output_cost_per_token": 0.000010` for  `gemini/gemini-2.5-pro-preview-03-25` added to `klyro/resources/model-metadata.json`
-  - Commit [eda796d](https://github.com/Klyro-AI/klyro/commit/eda796d) in klyro.
+  - Commit [eda796d](https://github.com/RavindraTirlangi/Klyro/commit/eda796d) in klyro.
 
 - 2025-04-05 16:20:01 UTC (Sun Apr 6 00:20:01 2025 +0800)
   - First litellm commit of `gemini/gemini-2.5-pro-preview-03-25` metadata, with incorrect price `"output_cost_per_token": 0.0000010`
@@ -92,12 +92,12 @@ relevant source.
 
 - 2025-04-12 04:55:50 UTC (2025-04-12-04-55-50 UTC)
   - Benchmark performed.
-  - Klyro repo hash [0282574 recorded in benchmark results](https://github.com/Klyro-AI/klyro/blob/7fbeafa1cfd4ad83f7499417837cdfa6b16fe7a1/klyro/website/_data/polyglot_leaderboard.yml#L814), without a "dirty" annotation, indicating that the benchmark was run on a clean checkout of the klyro repo at commit [0282574](https://github.com/Klyro-AI/klyro/commit/0282574).
-  - Correct value `"output_cost_per_token": 0.000010` is in `klyro/resources/model-metadata.json` at this commit [0282574](https://github.com/Klyro-AI/klyro/blob/0282574/klyro/resources/model-metadata.json#L357).
+  - Klyro repo hash [0282574 recorded in benchmark results](https://github.com/RavindraTirlangi/Klyro/blob/7fbeafa1cfd4ad83f7499417837cdfa6b16fe7a1/klyro/website/_data/polyglot_leaderboard.yml#L814), without a "dirty" annotation, indicating that the benchmark was run on a clean checkout of the klyro repo at commit [0282574](https://github.com/RavindraTirlangi/Klyro/commit/0282574).
+  - Correct value `"output_cost_per_token": 0.000010` is in `klyro/resources/model-metadata.json` at this commit [0282574](https://github.com/RavindraTirlangi/Klyro/blob/0282574/klyro/resources/model-metadata.json#L357).
 
 - 2025-04-12 15:06:39 UTC (Apr 12 08:06:39 2025 -0700)
   - Benchmark results added to klyro repo.
-  - Commit [7fbeafa](https://github.com/Klyro-AI/klyro/commit/7fbeafa) in klyro.
+  - Commit [7fbeafa](https://github.com/RavindraTirlangi/Klyro/commit/7fbeafa) in klyro.
 
 - 2025-04-12 15:20:04 UTC (Sat Apr 12 19:20:04 2025 +0400)
   - litellm commit fixes `gemini/gemini-2.5-pro-preview-03-25` price metadata to `"output_cost_per_token": 0.00001`
@@ -110,5 +110,5 @@ relevant source.
 
 - 2025-04-28 14:53:20 UTC (Mon Apr 28 07:53:20 2025 -0700)
   - Klyro upgraded its litellm dependency from v1.65.7 to v1.67.4.post1, which included the reasoning token count fix.
-  - Commit [9351f37](https://github.com/Klyro-AI/klyro/commit/9351f37) in klyro.
+  - Commit [9351f37](https://github.com/RavindraTirlangi/Klyro/commit/9351f37) in klyro.
   - This dependency change shipped on May 5, 2025 in klyro v0.82.3.

@@ -20,7 +20,7 @@ See
 [klyro's release history](/HISTORY.html) for the latest statistics.
 
 The
-[klyro git repo](https://github.com/Klyro-AI/klyro)
+[klyro git repo](https://github.com/RavindraTirlangi/Klyro)
 currently contains about 4K commits and 14K lines of code.
 
 Klyro made 15% of the commits, inserting 4.8K and deleting 1.5K lines of code.

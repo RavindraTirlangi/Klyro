@@ -43,7 +43,7 @@ These steps only need to be done once.
 
 ```
 # Clone the klyro repo
-git clone https://github.com/Klyro-AI/klyro.git
+git clone https://github.com/RavindraTirlangi/Klyro.git
 
 # Create the scratch dir to hold benchmarking results inside the main klyro dir:
 cd klyro
@@ -135,12 +135,12 @@ This way the `model`, `edit_format` and `commit_hash`
 should be enough to reliably reproduce any benchmark run.
 
 You can see examples of the benchmark report yaml in the
-[klyro leaderboard data files](https://github.com/Klyro-AI/klyro/blob/main/klyro/website/_data/).
+[klyro leaderboard data files](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/_data/).
 
 
 ## Limitations, notes
 
 - Contributions of benchmark results are welcome! Submit results by opening a PR with edits to the
-[klyro leaderboard data files](https://github.com/Klyro-AI/klyro/blob/main/klyro/website/_data/).
+[klyro leaderboard data files](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/_data/).
 - These scripts are not intended for use by typical klyro end users.
 - Some of these tools are written as `bash` scripts, so it will be hard to use them on Windows.

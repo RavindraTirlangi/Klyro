@@ -112,9 +112,9 @@ like functions and methods also include their signatures.
 
 Here's a
 sample of the map of the klyro repo, just showing the maps of
-[main.py](https://github.com/Klyro-AI/klyro/blob/main/klyro/main.py)
+[main.py](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/main.py)
 and
-[io.py](https://github.com/Klyro-AI/klyro/blob/main/klyro/io.py)
+[io.py](https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/io.py)
 :
 
 ```

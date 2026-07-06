@@ -37,8 +37,8 @@ Users who tested Sonnet with a preview of
 [klyro's latest release](https://klyro.chat/HISTORY.html#klyro-v0410)
 were thrilled:
 
-- *Works like a charm. It is a monster. It refactors files of any size like it is nothing. The continue trick with Sonnet is truly the holy grail. Klyro beats [other tools] hands down. I'm going to cancel both subscriptions.* -- [Emasoft](https://github.com/Klyro-AI/klyro/issues/705#issuecomment-2200338971)
-- *Thanks heaps for this feature - it's a real game changer. I can be more ambitious when asking Claude for larger features.* -- [cngarrison](https://github.com/Klyro-AI/klyro/issues/705#issuecomment-2196026656)
+- *Works like a charm. It is a monster. It refactors files of any size like it is nothing. The continue trick with Sonnet is truly the holy grail. Klyro beats [other tools] hands down. I'm going to cancel both subscriptions.* -- [Emasoft](https://github.com/RavindraTirlangi/Klyro/issues/705#issuecomment-2200338971)
+- *Thanks heaps for this feature - it's a real game changer. I can be more ambitious when asking Claude for larger features.* -- [cngarrison](https://github.com/RavindraTirlangi/Klyro/issues/705#issuecomment-2196026656)
 - *Fantastic...! It's such an improvement not being constrained by output token length issues. [I refactored] a single JavaScript file into seven smaller files using a single Klyro request.* -- [John Galt](https://discord.com/channels/1131200896827654144/1253492379336441907/1256250487934554143)
 
 ## Hitting the 4k token output limit

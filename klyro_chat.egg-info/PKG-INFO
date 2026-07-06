@@ -2,7 +2,7 @@ Metadata-Version: 2.4
 Name: klyro-chat
 Version: 0.86.3.dev65+g360fbf0a5.d20260706
 Summary: Klyro is AI pair programming in your terminal
-Project-URL: Homepage, https://github.com/Klyro-AI/klyro
+Project-URL: Homepage, https://github.com/RavindraTirlangi/Klyro
 Classifier: Development Status :: 4 - Beta
 Classifier: Environment :: Console
 Classifier: Intended Audience :: Developers

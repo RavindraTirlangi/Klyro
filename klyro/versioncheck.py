@@ -21,7 +21,7 @@ def install_from_main_branch(io):
         io,
         None,
         "Install the development version of klyro from the main branch?",
-        ["git+https://github.com/Klyro-AI/klyro.git"],
+        ["git+https://github.com/RavindraTirlangi/Klyro.git"],
         self_update=True,
     )
 
