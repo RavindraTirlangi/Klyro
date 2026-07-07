@@ -58,6 +58,7 @@ def try_to_select_default_model():
         # Auto-detect: quick check if Ollama is running on default port
         try:
             import urllib.request
+
             req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
             with urllib.request.urlopen(req, timeout=1) as resp:
                 if resp.status == 200:
@@ -90,7 +91,6 @@ def try_to_select_default_model():
             return model_name
 
     return None
-
 
 
 def offer_openrouter_oauth(io, analytics):

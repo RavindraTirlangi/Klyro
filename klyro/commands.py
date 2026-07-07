@@ -444,9 +444,9 @@ class Commands:
 
     def cmd_stats(self, args):
         "Report on the session token usage and cost"
-        
+
         self.io.tool_output(f"Model: {self.coder.main_model.name}")
-        
+
         def format_cost(value):
             if value >= 1.0:
                 return f"{value:.2f}"
@@ -454,14 +454,12 @@ class Commands:
                 return f"{value:.3f}"
             else:
                 return f"{value:.4f}"
-                
-        message_cost = getattr(self.coder, 'message_cost', 0.0)
-        total_cost = getattr(self.coder, 'total_cost', 0.0)
-        
+
+        message_cost = getattr(self.coder, "message_cost", 0.0)
+        total_cost = getattr(self.coder, "total_cost", 0.0)
+
         self.io.tool_output(f"Last message cost: ${format_cost(message_cost)}")
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
-
-
 
     def cmd_export(self, args):
         "Export the chat history to a file"

@@ -31,6 +31,7 @@ concurrency:
 jobs:
   # Build job
   build:
+    if: ${{ vars.PAGES_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -65,6 +66,7 @@ jobs:
 
   # Deployment job
   deploy:
+    if: ${{ vars.PAGES_ENABLED == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

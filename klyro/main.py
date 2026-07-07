@@ -19,9 +19,9 @@ from dotenv import load_dotenv
 from prompt_toolkit.enums import EditingMode
 
 from klyro import __version__, models, urls, utils
-from klyro.banner import print_banner
 from klyro.analytics import Analytics
 from klyro.args import get_parser
+from klyro.banner import print_banner
 from klyro.coders import Coder
 from klyro.coders.base_coder import UnknownEditFormat
 from klyro.commands import Commands, SwitchCoder
