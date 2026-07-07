@@ -9,44 +9,55 @@ on:
 jobs:
   docker_build_and_push:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@v4
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Login to DockerHub
-      uses: docker/login-action@v3
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/login-action@v4
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        username: ${{ env.DOCKERHUB_USERNAME }}
+        password: ${{ env.DOCKERHUB_PASSWORD }}
+
+    - name: Skip Docker release without DockerHub credentials
+      if: ${{ env.DOCKERHUB_USERNAME == '' || env.DOCKERHUB_PASSWORD == '' }}
+      run: |
+        echo "Skipping Docker release because DockerHub credentials are not configured."
 
     - name: Build and push Docker images
-      uses: docker/build-push-action@v5
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/klyro:${{ github.ref_name }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/klyro:latest
+          ${{ env.DOCKERHUB_USERNAME }}/klyro:${{ github.ref_name }}
+          ${{ env.DOCKERHUB_USERNAME }}/klyro:latest
         target: klyro
 
     - name: Build and push Docker full image
-      uses: docker/build-push-action@v5
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:${{ github.ref_name }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:latest
+          ${{ env.DOCKERHUB_USERNAME }}/klyro-full:${{ github.ref_name }}
+          ${{ env.DOCKERHUB_USERNAME }}/klyro-full:latest
         target: klyro-full

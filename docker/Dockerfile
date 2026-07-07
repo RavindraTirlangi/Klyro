@@ -34,7 +34,7 @@ ENV HOME=/app
 #########################
 FROM base AS klyro-full
 
-ENV KLYRO_DOCKER_IMAGE=paulgauthier/klyro-full
+ENV KLYRO_DOCKER_IMAGE=klyro/klyro-full
 
 COPY . /tmp/klyro
 
@@ -58,7 +58,7 @@ ENTRYPOINT ["/venv/bin/klyro"]
 #########################
 FROM base AS klyro
 
-ENV KLYRO_DOCKER_IMAGE=paulgauthier/klyro
+ENV KLYRO_DOCKER_IMAGE=klyro/klyro
 
 COPY . /tmp/klyro
 

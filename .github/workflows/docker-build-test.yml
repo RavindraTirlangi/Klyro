@@ -23,28 +23,31 @@ on:
 jobs:
   docker_build_and_push:
     runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         fetch-depth: 0
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@v4
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Login to DockerHub
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v3
+      if: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/login-action@v4
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+        username: ${{ env.DOCKERHUB_USERNAME }}
+        password: ${{ env.DOCKERHUB_PASSWORD }}
 
     - name: Build Docker images (PR)
       if: ${{ github.event_name == 'pull_request' }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
@@ -53,19 +56,29 @@ jobs:
         target: klyro
 
     - name: Build Docker images (Push)
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/build-push-action@v5
+      if: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/klyro:dev
+        tags: ${{ env.DOCKERHUB_USERNAME }}/klyro:dev
+        target: klyro
+
+    - name: Build Docker images (Push without DockerHub credentials)
+      if: ${{ github.event_name != 'pull_request' && (env.DOCKERHUB_USERNAME == '' || env.DOCKERHUB_PASSWORD == '') }}
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: ./docker/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: false
         target: klyro
 
     - name: Build Docker full image (PR)
       if: ${{ github.event_name == 'pull_request' }}
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
@@ -74,12 +87,22 @@ jobs:
         target: klyro-full
 
     - name: Build Docker full image (Push)
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/build-push-action@v5
+      if: ${{ github.event_name != 'pull_request' && env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_PASSWORD != '' }}
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:dev
+        tags: ${{ env.DOCKERHUB_USERNAME }}/klyro-full:dev
+        target: klyro-full
+
+    - name: Build Docker full image (Push without DockerHub credentials)
+      if: ${{ github.event_name != 'pull_request' && (env.DOCKERHUB_USERNAME == '' || env.DOCKERHUB_PASSWORD == '') }}
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: ./docker/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        push: false
         target: klyro-full

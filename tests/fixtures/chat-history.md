@@ -6615,7 +6615,7 @@ This modification ensures that users running klyro in a Docker container are giv
 >  
 > Newer klyro version v0.48.0 is available. To upgrade, run:  
 >  
-> docker pull paulgauthier/klyro  
+> docker pull klyro/klyro
 > /venv/bin/klyro  
 > Klyro v0.48.1-dev  
 > Models: claude-3-5-sonnet-20240620 with diff edit format, weak model claude-3-haiku-20240307  
@@ -46394,7 +46394,7 @@ HISTORY.md
   - Bugfix to properly handle subprocess encodings (also for `/run`).
 - Improved [docker support](https://klyro.chat/docs/install/docker.html):
   - Resolved permission issues when using `docker run --user xxx`.
-  - New `paulgauthier/klyro-full` docker image, which includes all extras.
+  - New `klyro/klyro-full` docker image, which includes all extras.
 - Switching to code and ask mode no longer summarizes the chat history.
 - Added graph of klyro's contribution to each release.
 - Generic auto-completions are provided for `/commands` without a completion override.
@@ -46853,7 +46853,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -51423,7 +51423,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -51641,7 +51641,7 @@ HISTORY.md
   - Correction de bogue pour gérer correctement les encodages de sous-processus (également pour `/run`).
 - Améliorations de [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolu les problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut toutes les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut toutes les extras.
 - Passer à code et mode ask ne résume plus l'historique du chat.
 - Ajout d'un graphique de la contribution d'klyro à chaque version.
 - Les auto-complétions génériques sont fournies pour `/commands` sans override de complétion.
@@ -55516,7 +55516,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -56144,7 +56144,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -57240,7 +57240,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -57443,7 +57443,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Des auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -58377,7 +58377,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages des sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut tous les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut tous les extras.
 - Passer en mode code et demande ne résume plus l'historique de la discussion.
 - Ajouté un graphique de la contribution d'klyro à chaque version.
 - Les auto-compléments génériques sont fournis pour `/commands` sans remplacement de complétion.
@@ -81519,7 +81519,7 @@ HISTORY.md
   - Correction de bug pour gérer correctement les encodages de sous-processus (également pour `/run`).
 - Améliorations du [support docker](https://klyro.chat/docs/install/docker.html) :
   - Résolution des problèmes de permissions lors de l'utilisation de `docker run --user xxx`.
-  - Nouvelle image docker `paulgauthier/klyro-full`, qui inclut toutes les extras.
+  - Nouvelle image docker `klyro/klyro-full`, qui inclut toutes les extras.
 - Passer au mode code et demander ne résume plus l'historique de chat.
 - Ajout d'un graphique de la contribution d'Klyro à chaque version.
 - Les auto-complétions génériques sont fournies pour `/commands` sans override de complétion.

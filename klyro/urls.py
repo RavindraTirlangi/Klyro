@@ -3,7 +3,10 @@ add_all_files = "https://github.com/RavindraTirlangi/Klyro"
 edit_errors = "https://github.com/RavindraTirlangi/Klyro"
 git = "https://github.com/RavindraTirlangi/Klyro"
 enable_playwright = "https://github.com/RavindraTirlangi/Klyro"
-favicon = "https://github.com/RavindraTirlangi/Klyro/blob/main/klyro/website/assets/icons/favicon-32x32.png"
+favicon = (
+    "https://github.com/RavindraTirlangi/Klyro/blob/main/"
+    "klyro/website/assets/icons/favicon-32x32.png"
+)
 model_warnings = "https://github.com/RavindraTirlangi/Klyro"
 token_limits = "https://github.com/RavindraTirlangi/Klyro"
 llms = "https://github.com/RavindraTirlangi/Klyro"

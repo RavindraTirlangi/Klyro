@@ -39,7 +39,7 @@ playwright = { file = "requirements/requirements-playwright.txt" }
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["klyro"]
+include = ["klyro", "klyro.*"]
 
 [build-system]
 requires = ["setuptools>=68", "setuptools_scm[toml]>=8"]

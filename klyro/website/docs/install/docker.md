@@ -7,8 +7,8 @@ nav_order: 100
 
 Klyro is available as 2 docker images:
 
-- `paulgauthier/klyro` installs the klyro core, a smaller image that's good to get started quickly.
-- `paulgauthier/klyro-full` installs klyro will all the optional extras.
+- `klyro/klyro` installs the klyro core, a smaller image that's good to get started quickly.
+- `klyro/klyro-full` installs klyro with all the optional extras.
 
 The full image has support for features like interactive help, the
 browser GUI and support for using Playwright to scrape web pages.  The
@@ -20,15 +20,15 @@ launch the klyro core container.
 ### Klyro core 
 
 ```
-docker pull paulgauthier/klyro
-docker run -it --user $(id -u):$(id -g) --volume $(pwd):/app paulgauthier/klyro --openai-api-key $OPENAI_API_KEY [...other klyro args...]
+docker pull klyro/klyro
+docker run -it --user $(id -u):$(id -g) --volume $(pwd):/app klyro/klyro --openai-api-key $OPENAI_API_KEY [...other klyro args...]
 ```
 
 ### Full version
 
 ```
-docker pull paulgauthier/klyro-full
-docker run -it --user $(id -u):$(id -g) --volume $(pwd):/app paulgauthier/klyro-full --openai-api-key $OPENAI_API_KEY [...other klyro args...]
+docker pull klyro/klyro-full
+docker run -it --user $(id -u):$(id -g) --volume $(pwd):/app klyro/klyro-full --openai-api-key $OPENAI_API_KEY [...other klyro args...]
 ```
 
 ## How to use it
