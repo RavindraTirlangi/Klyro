@@ -206,28 +206,6 @@ class Coder:
 
     def get_announcements(self):
         lines = []
-
-        logo = f"""
-[#4C4CFF]   #    #   [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF] #   #   [/#7F7FFF][#9999FF] ######  [/#9999FF][#B2B2FF]  ####   [/#B2B2FF]
-[#4C4CFF]   #   #    [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]  # #    [/#7F7FFF][#9999FF] #     # [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]
-[#4C4CFF]   ####     [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] ######  [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]  [bold white]Klyro CLI v{__version__}[/bold white]
-[#4C4CFF]   #   #    [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] #   #   [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]
-[#4C4CFF]   #    #   [/#4C4CFF][#6666FF] ###### [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] #    #  [/#9999FF][#B2B2FF]  ####   [/#B2B2FF]
-
-[#808080]------------------------------------------------------[/#808080]"""
-        lines.append(logo.strip("\n"))
-
-        # Files
-        for fname in self.get_inchat_relative_files():
-            lines.append(f"Added {fname} to the chat.")
-
-        for fname in self.abs_read_only_fnames:
-            rel_fname = self.get_rel_fname(fname)
-            lines.append(f"Added {rel_fname} to the chat (read-only).")
-
-        if self.done_messages:
-            lines.append("Restored previous conversation history.")
-
         if self.io.multiline_mode:
             lines.append("Multiline mode: Enabled. Enter inserts newline, Alt-Enter submits text")
 

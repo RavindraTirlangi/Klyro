@@ -3,22 +3,19 @@ Klyro startup banner display.
 """
 
 BANNER_ART = r"""
- ██╗  ██╗██╗  ██╗   ██╗██████╗  ██████╗
- ██║ ██╔╝██║  ╚██╗ ██╔╝██╔══██╗██╔═══██╗
- █████╔╝ ██║   ╚████╔╝ ██████╔╝██║   ██║
- ██╔═██╗ ██║    ╚██╔╝  ██╔══██╗██║   ██║
- ██║  ██╗███████╗██║   ██║  ██║╚██████╔╝
- ╚═╝  ╚═╝╚══════╝╚═╝   ╚═╝  ╚═╝ ╚═════╝
+[#4C4CFF]   #    #   [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF] #   #   [/#7F7FFF][#9999FF] ######  [/#9999FF][#B2B2FF]  ####   [/#B2B2FF]
+[#4C4CFF]   #   #    [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]  # #    [/#7F7FFF][#9999FF] #     # [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]
+[#4C4CFF]   ####     [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] ######  [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]  [bold white]Klyro CLI v{__version__}[/bold white]
+[#4C4CFF]   #   #    [/#4C4CFF][#6666FF] #      [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] #   #   [/#9999FF][#B2B2FF] #    #  [/#B2B2FF]
+[#4C4CFF]   #    #   [/#4C4CFF][#6666FF] ###### [/#6666FF][#7F7FFF]   #     [/#7F7FFF][#9999FF] #    #  [/#9999FF][#B2B2FF]  ####   [/#B2B2FF]
+
+[#808080]------------------------------------------------------[/#808080]
 """
-
-TAGLINE = "AI Pair Programming in Your Terminal"
-
 
 def print_banner(io, version):
     """Print the Klyro startup banner with version info."""
-    lines = BANNER_ART.strip("\n").split("\n")
+    logo = BANNER_ART.replace("{__version__}", version)
+    lines = logo.strip("\n").split("\n")
     for line in lines:
         io.tool_output(line)
-    io.tool_output(f"  {TAGLINE}")
-    io.tool_output(f"  v{version}")
-    io.tool_output()
+
