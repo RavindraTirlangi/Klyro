@@ -156,30 +156,99 @@ Switch models inside Klyro using `/model <alias>`:
 
 ## 💬 Slash Commands
 
+Klyro provides 43 built-in slash commands to manage your files, models, git repository, and session:
+
+### 📁 File & Context Management
 | Command | Description |
 |---|---|
-| `/model [name]` | Switch model mid-session — `/model list` to browse all providers |
-| `/stats` | Show current model, last message cost, and total session cost |
-| `/web <url>` | Scrape a webpage and add its content to the chat |
-| `/export [file]` | Export full chat history to a Markdown file |
-| `/add <file>` | Add a file to the chat context |
-| `/drop <file>` | Remove a file from the chat context |
-| `/diff` | Show the diff of changes made in this session |
-| `/undo` | Undo the last AI commit |
-| `/tokens` | Report token usage for current context |
-| `/git <cmd>` | Run any git command |
-| `/run <cmd>` | Run a shell command and add output to chat |
-| `/clear` | Clear the chat history |
-| `/help` | Show all available commands |
+| **`/add <file>`** | Add one or more files to the chat context so the AI can read and edit them |
+| **`/drop <file>`** | Remove files from the active chat context to free up tokens |
+| **`/read-only <file>`**| Add files as read-only (AI can reference them but won't modify them) |
+| **`/ls`** | List all files in your project and indicate which are added to the chat |
+| **`/clear`** | Clear the conversation history to start fresh |
+| **`/reset`** | Drop all files and clear chat history to start completely fresh |
+| **`/tokens`** | Report token counts and how much context window is left |
+| **`/diff`** | Show a diff of all local changes made in the active session |
+| **`/map`** | Print out the current repository map (symbols, functions, files structure) |
+| **`/map-refresh`** | Force a manual refresh of the repository map |
+| **`/context`** | Enter context mode to view surrounding code context |
 
-### ⌨️ Input & Multiline Shortcuts
-
-| Action | Shortcut / Command |
+### 🛠️ Coding, Testing & Shell
+| Command | Description |
 |---|---|
-| **Submit message in multiline mode** | Press `Alt + Enter` (or `Ctrl + J` if `Alt` is blocked by your terminal) |
-| **Start bracket multiline block** | Type `{` on a line by itself |
-| **Submit bracket multiline block** | Type `}` on a line by itself |
-| **Aborting / Cancelling prompt** | Press `Ctrl + C` (keeps Klyro running and returns to main chat prompt) |
+| **`/code [prompt]`** | Switch to code editing mode (or run a one-off code edit prompt) |
+| **`/ask [prompt]`** | Switch to question/explain mode (or ask a one-off question without editing files) |
+| **`/architect [prompt]`**| Switch to planning mode to design changes using two different models |
+| **`/chat-mode <mode>`** | Switch the active chat mode (`code`, `ask`, `architect`, or `context`) |
+| **`/ok`** | Shortcut for `/code Ok, please go ahead and make those changes.` |
+| **`/run <cmd>`** | Run a shell command and optionally add its output to the chat |
+| **`/test <cmd>`** | Run a test command and feed any errors/failures back to the AI for fixes |
+| **`/lint`** | Run linter/fixer on all in-chat or dirty files |
+| **`/editor`** | Open your configured external terminal editor (like vim or nano) to write a prompt |
+
+### 🧠 Model Configuration
+| Command | Description |
+|---|---|
+| **`/model <name>`** | Switch the main LLM mid-session — run `/model list` to browse all 90+ aliases |
+| **`/models <query>`** | Search for supported models matching a query string |
+| **`/editor-model <name>`**| Switch the model used specifically for writing file edits |
+| **`/weak-model <name>`** | Switch the model used for minor background tasks (e.g. summaries) |
+| **`/reasoning-effort <l/m/h>`**| Set the reasoning depth (`low`, `medium`, `high`) for reasoning models |
+| **`/think-tokens <limit>`**| Set the maximum thinking token budget for reasoning models (0 to disable) |
+
+### 🐙 Git Integration
+| Command | Description |
+|---|---|
+| **`/git <command>`** | Run any git command directly from the session |
+| **`/commit [message]`** | Commit any unsaved edits made outside of Klyro |
+| **`/undo`** | Undo/revert the last git commit made by Klyro |
+
+### 🎙️ Session & Input Helpers
+| Command | Description |
+|---|---|
+| **`/multiline-mode`** | Toggle multiline mode (swaps Enter and Alt+Enter behavior) |
+| **`/paste`** | Paste text or clipboard images into the chat session |
+| **`/copy`** | Copy the last assistant response to your clipboard |
+| **`/copy-context`** | Copy the entire active chat context as Markdown |
+| **`/voice`** | Speak your prompt using your microphone (dictation) |
+| **`/web <url>`** | Scrape a webpage, convert it to Markdown, and add it to the chat |
+| **`/export [file]`** | Export your full chat session history to a Markdown file |
+| **`/stats`** | Show model details, last message cost, and total session cost |
+| **`/help <question>`** | Ask interactive help questions about using Klyro |
+| **`/settings`** | Print out all active settings and config parameters |
+| **`/load <file>`** | Load and execute a list of Klyro commands from a text file |
+| **`/save <file>`** | Save active files list as a set of `/add` commands to reconstruct session |
+| **`/report`** | Report a problem by opening a GitHub Issue |
+| **`/exit`** | Exit the Klyro application |
+
+---
+
+## ⌨️ Keyboard Shortcuts
+
+Klyro provides Emacs-style keybindings for prompt editing and history navigation:
+
+### Prompt Editing & Navigation
+* `Ctrl + A` : Move cursor to the start of the line.
+* `Ctrl + E` : Move cursor to the end of the line.
+* `Ctrl + B` : Move cursor back one character.
+* `Ctrl + F` : Move cursor forward one character.
+* `Ctrl + D` : Delete the character under the cursor.
+* `Ctrl + K` : Cut/delete from the cursor to the end of the line.
+* `Ctrl + Y` : Paste (yank) text that was previously cut.
+* `Ctrl + L` : Clear the terminal screen.
+
+### History Navigation
+* `Ctrl + R` : Search backwards through your sent message history.
+* `Ctrl + P` / `Ctrl + Up` : Scroll back to previous history entries.
+* `Ctrl + N` / `Ctrl + Down` : Scroll forward to next history entries.
+* `Up Arrow` : Move cursor up one line inside a multiline message.
+* `Down Arrow` : Move cursor down one line inside a multiline message.
+
+### Multiline & Cancellation
+* `Alt + Enter` (or `Ctrl + J`) : Submit message in multiline mode.
+* `{` on a line by itself : Start a bracket-based multiline prompt.
+* `}` on a line by itself : Submit a bracket-based multiline prompt.
+* `Ctrl + C` : Abort the current prompt or cancel an interactive question (returns to prompt).
 
 ---
 
