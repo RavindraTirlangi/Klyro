@@ -20,10 +20,16 @@ If Windows says `klyro` is not recognized after installation, run it with:
 python -m klyro
 ```
 
-Or add your Python user Scripts folder to PATH, usually:
+Or add your Python user Scripts folder to PATH. To find it, run:
+
+```bash
+python -c "import sysconfig; print(sysconfig.get_path('scripts', 'nt_user'))"
+```
+
+Then add that path to your Windows user PATH environment variable, e.g.:
 
 ```text
-C:\Users\SYS\AppData\Roaming\Python\Scripts
+C:\Users\<YourName>\AppData\Roaming\Python\Python3XX\Scripts
 ```
 
 Install from source:
