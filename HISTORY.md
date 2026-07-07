@@ -2,6 +2,15 @@
 
 ---
 
+### v1.0.3 — 2026-07-07
+
+#### Code Cleanup & Refactoring
+- **Removed duplicate slash commands:** Deleted `/quit` (use `/exit`) and `/edit` (use `/editor`) to clean up redundant command aliases.
+- **Fixed duplicate model command method:** Removed the duplicate `cmd_model` method from `commands.py`.
+- **Disabled noisy workflows:** Disabled inherited `pre-commit`, `docker-build-test`, `ubuntu-tests`, and `windows-tests` GitHub Actions that don't apply to Klyro, leaving only the PyPI publish pipeline active.
+
+---
+
 ### v1.0.2 — 2026-07-07
 
 #### New Features
