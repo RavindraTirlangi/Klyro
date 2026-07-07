@@ -30,7 +30,7 @@ included for scale.
 You can code with all of these models using klyro like this:
 
 ```
-$ python -m pip install -U klyro-chat
+$ python -m pip install -U klyro
 
 # Change directory into a git repo to work on
 $ cd /to/your/git/repo

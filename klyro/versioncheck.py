@@ -50,7 +50,7 @@ def install_upgrade(io, latest_version=None):
         io,
         None,
         new_ver_text,
-        ["klyro-chat"],
+        ["klyro"],
         self_update=True,
     )
 
@@ -75,7 +75,7 @@ def check_version(io, just_check=False, verbose=False):
     import requests
 
     try:
-        response = requests.get("https://pypi.org/pypi/klyro-chat/json")
+        response = requests.get("https://pypi.org/pypi/klyro/json")
         data = response.json()
         latest_version = data["info"]["version"]
         current_version = klyro.__version__

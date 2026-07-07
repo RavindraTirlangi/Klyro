@@ -55,7 +55,7 @@ You can install klyro with uv:
 
 ```bash
 python -m pip install uv  # If you need to install uv
-uv tool install --force --python python3.12 --with pip klyro-chat@latest
+uv tool install --force --python python3.12 --with pip klyro@latest
 ```
 
 This will install uv using your existing python version 3.8-3.13,
@@ -72,7 +72,7 @@ You can install klyro with pipx:
 
 ```bash
 python -m pip install pipx  # If you need to install pipx
-pipx install klyro-chat
+pipx install klyro
 ```
 
 You can use pipx to install klyro with python versions 3.9-3.12.
@@ -96,7 +96,7 @@ to keep klyro's dependencies separated.
 You can use pip to install klyro with python versions 3.9-3.12.
 
 ```bash
-python -m pip install -U --upgrade-strategy only-if-needed klyro-chat
+python -m pip install -U --upgrade-strategy only-if-needed klyro
 ```
 
 {% include python-m-klyro.md %}

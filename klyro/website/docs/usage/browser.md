@@ -48,7 +48,7 @@ It also supports [connecting to almost any LLM](https://klyro.chat/docs/llms.htm
 Use the `--browser` switch to launch the browser version of klyro:
 
 ```
-python -m pip install -U klyro-chat
+python -m pip install -U klyro
 
 export OPENAI_API_KEY=<key> # Mac/Linux
 setx   OPENAI_API_KEY <key> # Windows, restart shell after setx

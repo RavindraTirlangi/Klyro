@@ -424,8 +424,8 @@ function Invoke-Installer($artifacts, $platforms) {
   }
 
   Write-Information ""
-  Write-Information "Installing klyro-chat..."
-  & "$dest_dir\uv.exe" tool install --force --python python3.12 --with pip klyro-chat@latest
+  Write-Information "Installing klyro..."
+  & "$dest_dir\uv.exe" tool install --force --python python3.12 --with pip klyro@latest
 
   if (-not $NoModifyPath) {
     Add-Ci-Path $dest_dir

@@ -85,7 +85,7 @@ def write_to_cache(package_name, downloads):
         return False
 
 
-def get_downloads_from_bigquery(credentials_path=None, package_name="klyro-chat"):
+def get_downloads_from_bigquery(credentials_path=None, package_name="klyro"):
     """
     Fetch download statistics for a package from Google BigQuery PyPI dataset
     Uses a 24-hour cache to avoid unnecessary API calls
@@ -151,7 +151,7 @@ def get_downloads_from_bigquery(credentials_path=None, package_name="klyro-chat"
 
 
 def get_total_downloads(
-    api_key=None, package_name="klyro-chat", use_bigquery=False, credentials_path=None
+    api_key=None, package_name="klyro", use_bigquery=False, credentials_path=None
 ):
     """
     Fetch total downloads for a Python package
@@ -284,7 +284,7 @@ def generate_badges_md(downloads, stars, klyro_percentage):
 
     markdown = f"""  <a href="https://github.com/RavindraTirlangi/Klyro/stargazers"><img alt="GitHub Stars" title="{GITHUB_STARS_TOOLTIP}"
 src="https://img.shields.io/github/stars/RavindraTirlangi/Klyro?style=flat-square&logo=github&color=f1c40f&labelColor=555555"/></a>
-  <a href="https://pypi.org/project/klyro-chat/"><img alt="PyPI Downloads" title="{PYPI_DOWNLOADS_TOOLTIP}"
+  <a href="https://pypi.org/project/klyro/"><img alt="PyPI Downloads" title="{PYPI_DOWNLOADS_TOOLTIP}"
 src="https://img.shields.io/badge/📦%20Installs-{downloads_formatted}-2ecc71?style=flat-square&labelColor=555555"/></a>
   <img alt="Tokens per week" title="{TOKENS_WEEKLY_TOOLTIP}"
 src="https://img.shields.io/badge/📈%20Tokens%2Fweek-{TOKENS_PER_WEEK}-3498db?style=flat-square&labelColor=555555"/>
@@ -323,7 +323,7 @@ def get_badges_md():
             sys.exit(1)
 
     # Get PyPI downloads for the default package
-    total_downloads = get_total_downloads(api_key, "klyro-chat", use_bigquery, credentials_path)
+    total_downloads = get_total_downloads(api_key, "klyro", use_bigquery, credentials_path)
 
     # Get GitHub stars for the default repo
     stars = get_github_stars("RavindraTirlangi/klyro")
@@ -362,7 +362,7 @@ def get_badges_html():
             sys.exit(1)
 
     # Get PyPI downloads for the default package
-    total_downloads = get_total_downloads(api_key, "klyro-chat", use_bigquery, credentials_path)
+    total_downloads = get_total_downloads(api_key, "klyro", use_bigquery, credentials_path)
 
     # Get GitHub stars for the default repo
     stars = get_github_stars("RavindraTirlangi/klyro")
@@ -390,7 +390,7 @@ def get_badges_html():
     <span class="badge-label">⭐ GitHub Stars</span>
     <span class="badge-value">{stars_formatted}</span>
 </a>
-<a href="https://pypi.org/project/klyro-chat/" class="github-badge badge-installs" title="{PYPI_DOWNLOADS_TOOLTIP}">
+<a href="https://pypi.org/project/klyro/" class="github-badge badge-installs" title="{PYPI_DOWNLOADS_TOOLTIP}">
     <span class="badge-label">📦 Installs</span>
     <span class="badge-value">{downloads_formatted}</span>
 </a>
@@ -539,7 +539,7 @@ def main():
         ),
     )
     parser.add_argument(
-        "--package", default="klyro-chat", help="Package name (default: klyro-chat)"
+        "--package", default="klyro", help="Package name (default: klyro)"
     )
     parser.add_argument(
         "--github-repo",

@@ -116,7 +116,7 @@ for more details, but
 you can get started quickly with klyro and Sonnet like this:
 
 ```
-$ python -m pip install -U klyro-chat
+$ python -m pip install -U klyro
 
 $ export ANTHROPIC_API_KEY=<key> # Mac/Linux
 $ setx   ANTHROPIC_API_KEY <key> # Windows, restart shell after setx

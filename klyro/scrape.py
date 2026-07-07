@@ -42,7 +42,7 @@ def install_playwright(io):
     if has_pip and has_chromium:
         return True
 
-    pip_cmd = utils.get_pip_install(["klyro-chat[playwright]"])
+    pip_cmd = utils.get_pip_install(["klyro[playwright]"])
     chromium_cmd = "-m playwright install --with-deps chromium"
     chromium_cmd = [sys.executable] + chromium_cmd.split()
 
@@ -221,8 +221,7 @@ class Scraper:
 
         try:
             pypandoc.download_pandoc(delete_installer=True)
-        except Exception as err:
-            self.print_error(f"Unable to install pandoc: {err}")
+        except Exception:
             return
 
         self.pandoc_available = True
