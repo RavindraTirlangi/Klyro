@@ -900,6 +900,15 @@ class Coder:
         read_only_files = [self.get_rel_fname(fname) for fname in self.abs_read_only_fnames]
         all_files = sorted(set(inchat_files + read_only_files))
         edit_format = "" if self.edit_format == self.main_model.edit_format else self.edit_format
+        branch_name = None
+        if self.repo and hasattr(self.repo, "repo") and self.repo.repo:
+            try:
+                branch_name = self.repo.repo.active_branch.name
+            except Exception:
+                pass
+
+        model_name = self.main_model.name if self.main_model else None
+
         return self.io.get_input(
             self.root,
             all_files,
@@ -907,6 +916,8 @@ class Coder:
             self.commands,
             self.abs_read_only_fnames,
             edit_format=edit_format,
+            branch_name=branch_name,
+            model_name=model_name,
         )
 
     def preproc_user_input(self, inp):

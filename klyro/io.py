@@ -24,6 +24,7 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.output.vt100 import is_dumb_terminal
 from prompt_toolkit.shortcuts import CompleteStyle, PromptSession
 from prompt_toolkit.styles import Style
+from prompt_toolkit.formatted_text import FormattedText
 from pygments.lexers import MarkdownLexer, guess_lexer_for_filename
 from pygments.token import Token
 from rich.color import ColorParseError
@@ -410,6 +411,16 @@ class InputOutput:
                 }
             )
 
+        style_dict.update(
+            {
+                "klyro": "bold white",
+                "branch": "#808080",          # Dark Gray / Light Black
+                "model": "#0087ff",           # Vibrant Blue
+                "arrow": "bold #0087ff",      # Vibrant Blue
+                "mode": "bold white",
+            }
+        )
+
         # Conditionally add 'completion-menu' style
         completion_menu_style = []
         if self.completion_menu_bg_color:
@@ -528,6 +539,8 @@ class InputOutput:
         commands,
         abs_read_only_fnames=None,
         edit_format=None,
+        branch_name=None,
+        model_name=None,
     ):
         self.rule()
 
@@ -542,15 +555,39 @@ class InputOutput:
             ]
             show = self.format_files_for_input(rel_fnames, rel_read_only_fnames)
 
-        prompt_prefix = ""
-        if edit_format:
-            prompt_prefix += edit_format
-        if self.multiline_mode:
-            prompt_prefix += (" " if edit_format else "") + "multi"
-        prompt_prefix += "> "
+        # Print the files list above the prompt if it exists (like Claude Code)
+        if show:
+            self.console.print(show.rstrip())
 
-        show += prompt_prefix
-        self.prompt_prefix = prompt_prefix
+        # Construct styled prompt prefix using FormattedText
+        prompt_parts = []
+        if self.pretty:
+            prompt_parts.append(("class:klyro", "klyro"))
+            if branch_name:
+                prompt_parts.append(("class:branch", f" ({branch_name})"))
+            if model_name:
+                short_model = model_name.split("/")[-1]
+                prompt_parts.append(("class:model", f" [{short_model}]"))
+            if edit_format:
+                prompt_parts.append(("class:mode", f" <{edit_format}>"))
+            if self.multiline_mode:
+                prompt_parts.append(("class:mode", " [multi]"))
+            prompt_parts.append(("class:arrow", " ❯ "))
+        else:
+            prompt_prefix = "klyro"
+            if branch_name:
+                prompt_prefix += f" ({branch_name})"
+            if model_name:
+                prompt_prefix += f" [{model_name.split('/')[-1]}]"
+            if edit_format:
+                prompt_prefix += f" <{edit_format}>"
+            if self.multiline_mode:
+                prompt_prefix += " [multi]"
+            prompt_prefix += " > "
+            prompt_parts.append(("", prompt_prefix))
+
+        self.prompt_prefix = FormattedText(prompt_parts)
+        show = self.prompt_prefix
 
         inp = ""
         multiline_input = False

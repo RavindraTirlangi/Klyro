@@ -395,13 +395,13 @@ class TestInputOutputMultilineMode(unittest.TestCase):
         io.prompt_session.prompt.side_effect = KeyboardInterrupt
 
         # Test confirm_ask()
-        with self.assertRaises(KeyboardInterrupt):
-            io.confirm_ask("Test question?")
+        res = io.confirm_ask("Test question?")
+        self.assertFalse(res)
         self.assertTrue(io.multiline_mode)  # Should be restored
 
         # Test prompt_ask()
-        with self.assertRaises(KeyboardInterrupt):
-            io.prompt_ask("Test prompt?")
+        res_prompt = io.prompt_ask("Test prompt?")
+        self.assertEqual(res_prompt, "")
         self.assertTrue(io.multiline_mode)  # Should be restored
 
     def test_multiline_mode_restored_after_normal_exit(self):
