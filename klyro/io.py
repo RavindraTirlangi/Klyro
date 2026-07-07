@@ -418,6 +418,7 @@ class InputOutput:
                 "model": "#0087ff",           # Vibrant Blue
                 "arrow": "bold #0087ff",      # Vibrant Blue
                 "mode": "bold white",
+                "bottom-toolbar": "white bg:#222222", # Dark grey background, white text
             }
         )
 
@@ -562,16 +563,15 @@ class InputOutput:
         # Construct styled prompt prefix using FormattedText
         prompt_parts = []
         if self.pretty:
-            prompt_parts.append(("class:klyro", "klyro"))
             if self.multiline_mode:
-                prompt_parts.append(("class:mode", " [multi]"))
+                prompt_parts.append(("class:mode", "[multi]"))
             # Use a standard > arrow for maximum Windows terminal compatibility
-            prompt_parts.append(("class:arrow", " > "))
+            prompt_parts.append(("class:arrow", "> "))
         else:
-            prompt_prefix = "klyro"
+            prompt_prefix = ""
             if self.multiline_mode:
-                prompt_prefix += " [multi]"
-            prompt_prefix += " > "
+                prompt_prefix += "[multi]"
+            prompt_prefix += "> "
             prompt_parts.append(("", prompt_prefix))
 
         self.prompt_prefix = FormattedText(prompt_parts)
@@ -681,6 +681,15 @@ class InputOutput:
                     def get_continuation(width, line_number, is_soft_wrap):
                         return self.prompt_prefix
 
+                    def get_bottom_toolbar():
+                        import shutil
+                        width = shutil.get_terminal_size().columns
+                        left = "? for shortcuts"
+                        right = model_name or ""
+                        spaces = max(1, width - len(left) - len(right) - 1)
+                        # prompt_toolkit style classes can be used to set the colors
+                        return [("class:bottom-toolbar", left + " " * spaces + right)]
+
                     line = self.prompt_session.prompt(
                         show,
                         default=default,
@@ -691,6 +700,7 @@ class InputOutput:
                         key_bindings=kb,
                         complete_while_typing=True,
                         prompt_continuation=get_continuation,
+                        bottom_toolbar=get_bottom_toolbar,
                     )
                 else:
                     line = input(show)
