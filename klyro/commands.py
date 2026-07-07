@@ -461,45 +461,7 @@ class Commands:
         self.io.tool_output(f"Last message cost: ${format_cost(message_cost)}")
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
 
-    def cmd_web(self, args):
-        "Fetch a web page and add its content to the chat context"
 
-        url = args.strip()
-        if not url:
-            self.io.tool_error("Please provide a URL. Usage: /web <url>")
-            return
-
-        if not url.startswith(("http://", "https://")):
-            url = "https://" + url
-
-        self.io.tool_output(f"Fetching {url}...")
-
-        if not self.scraper:
-            self.scraper = Scraper(
-                print_error=self.io.tool_error,
-                verify_ssl=self.verify_ssl,
-            )
-
-        content = self.scraper.scrape(url)
-        if not content:
-            self.io.tool_error(f"Unable to fetch content from {url}")
-            return
-
-        content = content.strip()
-        # Show a preview (first 1500 chars)
-        preview = content[:1500]
-        if len(content) > 1500:
-            preview += "\n\n... (truncated for preview)"
-
-        self.io.tool_output(f"\n--- Content from {url} ---")
-        self.io.tool_output(preview)
-        self.io.tool_output(f"--- End preview ({len(content)} chars total) ---\n")
-
-        # Add the full content to the chat as a user message
-        self.coder.cur_messages += [
-            dict(role="user", content=f"Content from {url}:\n\n{content}")
-        ]
-        self.io.tool_output("Web page content added to chat context.")
 
     def cmd_export(self, args):
         "Export the chat history to a file"
