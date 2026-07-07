@@ -17,5 +17,8 @@ def print_banner(io, version):
     logo = BANNER_ART.replace("{__version__}", version)
     lines = logo.strip("\n").split("\n")
     for line in lines:
-        io.tool_output(line)
+        if hasattr(io, "console") and io.console:
+            io.console.print(line)
+        else:
+            io.tool_output(line)
 
