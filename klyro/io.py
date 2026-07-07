@@ -563,25 +563,12 @@ class InputOutput:
         prompt_parts = []
         if self.pretty:
             prompt_parts.append(("class:klyro", "klyro"))
-            if branch_name:
-                prompt_parts.append(("class:branch", f" ({branch_name})"))
-            if model_name:
-                short_model = model_name.split("/")[-1]
-                prompt_parts.append(("class:model", f" [{short_model}]"))
-            if edit_format:
-                prompt_parts.append(("class:mode", f" <{edit_format}>"))
             if self.multiline_mode:
                 prompt_parts.append(("class:mode", " [multi]"))
             # Use a standard > arrow for maximum Windows terminal compatibility
             prompt_parts.append(("class:arrow", " > "))
         else:
             prompt_prefix = "klyro"
-            if branch_name:
-                prompt_prefix += f" ({branch_name})"
-            if model_name:
-                prompt_prefix += f" [{model_name.split('/')[-1]}]"
-            if edit_format:
-                prompt_prefix += f" <{edit_format}>"
             if self.multiline_mode:
                 prompt_prefix += " [multi]"
             prompt_prefix += " > "
