@@ -450,6 +450,11 @@ def sanity_check_repo(repo, io):
 
 
 def main(argv=None, input=None, output=None, force_git_root=None, return_coder=False):
+    import sys
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
     report_uncaught_exceptions()
 
     if argv is None:
@@ -586,9 +591,6 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
             raise err
         io = get_io(False)
         io.tool_warning("Terminal does not support pretty output (UnicodeDecodeError)")
-
-    # Display the Klyro startup banner
-    print_banner(io, __version__)
 
     # Process any environment variables set via --set-env
     if args.set_env:

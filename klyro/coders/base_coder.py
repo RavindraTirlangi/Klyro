@@ -206,6 +206,89 @@ class Coder:
 
     def get_announcements(self):
         lines = []
+        lines.append(f"Klyro v{__version__}")
+
+        # Model
+        main_model = self.main_model
+        weak_model = main_model.weak_model
+
+        if weak_model is not main_model:
+            prefix = "Main model"
+        else:
+            prefix = "Model"
+
+        output = f"{prefix}: {main_model.name} with {self.edit_format} edit format"
+
+        # Check for thinking token budget
+        thinking_tokens = main_model.get_thinking_tokens()
+        if thinking_tokens:
+            output += f", {thinking_tokens} think tokens"
+
+        # Check for reasoning effort
+        reasoning_effort = main_model.get_reasoning_effort()
+        if reasoning_effort:
+            output += f", reasoning {reasoning_effort}"
+
+        if self.add_cache_headers or main_model.caches_by_default:
+            output += ", prompt cache"
+        if main_model.info.get("supports_assistant_prefill"):
+            output += ", infinite output"
+
+        lines.append(output)
+
+        if self.edit_format == "architect":
+            output = (
+                f"Editor model: {main_model.editor_model.name} with"
+                f" {main_model.editor_edit_format} edit format"
+            )
+            lines.append(output)
+
+        if weak_model is not main_model:
+            output = f"Weak model: {weak_model.name}"
+            lines.append(output)
+
+        # Repo
+        if self.repo:
+            rel_repo_dir = self.repo.get_rel_repo_dir()
+            num_files = len(self.repo.get_tracked_files())
+
+            lines.append(f"Git repo: {rel_repo_dir} with {num_files:,} files")
+            if num_files > 1000:
+                lines.append(
+                    "Warning: For large repos, consider using --subtree-only and .klyroignore"
+                )
+                lines.append(f"See: {urls.large_repos}")
+        else:
+            lines.append("Git repo: none")
+
+        # Repo-map
+        if self.repo_map:
+            map_tokens = self.repo_map.max_map_tokens
+            if map_tokens > 0:
+                refresh = self.repo_map.refresh
+                lines.append(f"Repo-map: using {map_tokens} tokens, {refresh} refresh")
+                max_map_tokens = self.main_model.get_repo_map_tokens() * 2
+                if map_tokens > max_map_tokens:
+                    lines.append(
+                        f"Warning: map-tokens > {max_map_tokens} is not recommended. Too much"
+                        " irrelevant code can confuse LLMs."
+                    )
+            else:
+                lines.append("Repo-map: disabled because map_tokens == 0")
+        else:
+            lines.append("Repo-map: disabled")
+
+        # Files
+        for fname in self.get_inchat_relative_files():
+            lines.append(f"Added {fname} to the chat.")
+
+        for fname in self.abs_read_only_fnames:
+            rel_fname = self.get_rel_fname(fname)
+            lines.append(f"Added {rel_fname} to the chat (read-only).")
+
+        if self.done_messages:
+            lines.append("Restored previous conversation history.")
+
         if self.io.multiline_mode:
             lines.append("Multiline mode: Enabled. Enter inserts newline, Alt-Enter submits text")
 
@@ -465,10 +548,49 @@ class Coder:
             self.linter.set_linter(lang, cmd)
 
     def show_announcements(self):
-        bold = True
-        for line in self.get_announcements():
-            self.io.tool_output(line, bold=bold)
-            bold = False
+        from rich.table import Table
+        from rich.text import Text
+
+        logo_str = """
+[#4C4CFF]██╗  ██╗[/#4C4CFF]
+[#6666FF]██║ ██╔╝[/#6666FF]
+[#7F7FFF]█████╔╝ [/#7F7FFF]
+[#9999FF]██╔═██╗ [/#9999FF]
+[#B2B2FF]██║  ██╗[/#B2B2FF]
+[#CCCCFF]╚═╝  ╚═╝[/#CCCCFF]
+        """.strip()
+
+        try:
+            logo_text = Text.from_markup(logo_str)
+        except Exception:
+            logo_text = logo_str  # fallback
+
+        announcements = self.get_announcements()
+        info_lines = []
+        for i, line in enumerate(announcements):
+            if i == 0:
+                info_lines.append(f"[bold white]{line}[/bold white]")
+            else:
+                info_lines.append(line)
+        info_str = "\n".join(info_lines)
+
+        try:
+            info_text = Text.from_markup(info_str)
+        except Exception:
+            info_text = info_str
+
+        try:
+            table = Table.grid(padding=(0, 2))
+            table.add_column("Logo")
+            table.add_column("Info", vertical="middle")
+            table.add_row(logo_text, info_text)
+            self.io.console.print(table)
+        except Exception:
+            # Fallback if rich console is not available or crashes
+            bold = True
+            for line in announcements:
+                self.io.tool_output(line, bold=bold)
+                bold = False
 
     def add_rel_fname(self, rel_fname):
         self.abs_fnames.add(self.abs_root_path(rel_fname))
