@@ -5,8 +5,10 @@
 [![PyPI](https://img.shields.io/pypi/v/klyro?style=flat-square&color=blue)](https://pypi.org/project/klyro/)
 [![Python](https://img.shields.io/pypi/pyversions/klyro?style=flat-square)](https://pypi.org/project/klyro/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green?style=flat-square)](LICENSE)
+[![Changelog](https://img.shields.io/badge/changelog-v1.0.2-orange?style=flat-square)](CHANGELOG.md)
 
 Klyro lets you pair program with LLMs directly from your terminal. Start a new project or work on your existing codebase with an AI that can read, understand, and edit your code.
+
 
 ## Quick Install
 
