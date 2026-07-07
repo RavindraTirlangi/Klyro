@@ -1,8 +1,8 @@
 name: Windows Check PyPI Version
 
-# Check to be sure `pip install cognicli-chat` installs the most recently published version on Windows.
+# Check to be sure `pip install klyro` installs the most recently published version on Windows.
 # If dependencies get yanked, it may render the latest version uninstallable.
-# See https://github.com/RavindraTirlangi/cognicli/issues/3699 for example.
+# See https://github.com/RavindraTirlangi/Klyro/issues for examples.
 
 on:
   schedule:
@@ -26,25 +26,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install cognicli-chat
-        run: pip install cognicli-chat
+      - name: Install klyro
+        run: pip install klyro
 
-      - name: Get installed cognicli version
+      - name: Get installed klyro version
         id: installed_version
         run: |
-          Write-Host "Running 'cognicli --version'..."
-          $cognicli_version_output = cognicli --version
+          Write-Host "Running 'klyro --version'..."
+          $klyro_version_output = klyro --version
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Error: 'cognicli --version' command failed."
+            Write-Error "Error: 'klyro --version' command failed."
             exit 1
           }
-          Write-Host "Raw cognicli --version output: $cognicli_version_output"
+          Write-Host "Raw klyro --version output: $klyro_version_output"
 
           # Extract version number (format X.Y.Z) using PowerShell regex
-          $match = [regex]::Match($cognicli_version_output, '\d+\.\d+\.\d+')
+          $match = [regex]::Match($klyro_version_output, '\d+\.\d+\.\d+')
 
           if (-not $match.Success) {
-            Write-Error "Error: Could not extract version number using regex '\d+\.\d+\.\d+' from output: $cognicli_version_output"
+            Write-Error "Error: Could not extract version number using regex '\d+\.\d+\.\d+' from output: $klyro_version_output"
             exit 1
           }
           $version_num = $match.Value
@@ -84,7 +84,7 @@ jobs:
           Write-Host "Installed version: ${{ steps.installed_version.outputs.version }}"
           Write-Host "Latest tag version: ${{ steps.latest_tag.outputs.tag }}"
           if ("${{ steps.installed_version.outputs.version }}" -ne "${{ steps.latest_tag.outputs.tag }}") {
-            Write-Error "Error: Installed cognicli version (${{ steps.installed_version.outputs.version }}) does not match the latest tag (${{ steps.latest_tag.outputs.tag }})."
+            Write-Error "Error: Installed klyro version (${{ steps.installed_version.outputs.version }}) does not match the latest tag (${{ steps.latest_tag.outputs.tag }})."
             exit 1
           }
           Write-Host "Versions match."

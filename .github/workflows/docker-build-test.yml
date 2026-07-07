@@ -3,7 +3,7 @@ name: Docker Build Test
 on:
   push:
     paths-ignore:
-      - 'cognicli/website/**'
+      - 'klyro/website/**'
       - 'README.md'
       - 'HISTORY.md'
       - '.github/workflows/*'
@@ -12,7 +12,7 @@ on:
       - main
   pull_request:
     paths-ignore:
-      - 'cognicli/website/**'
+      - 'klyro/website/**'
       - 'README.md'
       - 'HISTORY.md'
       - '.github/workflows/*'
@@ -50,7 +50,7 @@ jobs:
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: false
-        target: cognicli
+        target: klyro
 
     - name: Build Docker images (Push)
       if: ${{ github.event_name != 'pull_request' }}
@@ -60,8 +60,8 @@ jobs:
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/cognicli:dev
-        target: cognicli
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/klyro:dev
+        target: klyro
 
     - name: Build Docker full image (PR)
       if: ${{ github.event_name == 'pull_request' }}
@@ -71,7 +71,7 @@ jobs:
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: false
-        target: cognicli-full
+        target: klyro-full
 
     - name: Build Docker full image (Push)
       if: ${{ github.event_name != 'pull_request' }}
@@ -81,5 +81,5 @@ jobs:
         file: ./docker/Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/cognicli-full:dev
-        target: cognicli-full
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:dev
+        target: klyro-full

@@ -3,7 +3,7 @@ name: Windows Python Tests
 on:
   push:
     paths-ignore:
-      - 'cognicli/website/**'
+      - 'klyro/website/**'
       - 'README.md'
       - 'HISTORY.md'
       - '.github/workflows/*'
@@ -12,7 +12,7 @@ on:
       - main
   pull_request:
     paths-ignore:
-      - 'cognicli/website/**'
+      - 'klyro/website/**'
       - 'README.md'
       - 'HISTORY.md'
       - '.github/workflows/*'
@@ -46,7 +46,7 @@ jobs:
 
     - name: Run tests
       env:
-        COGNICLI_ANALYTICS: false
+        KLYRO_ANALYTICS: false
       run: |
         pytest
         

@@ -1,8 +1,8 @@
 name: Check PyPI Version
 
-# Check to be sure `pip install cognicli-chat` installs the most recently published version.
+# Check to be sure `pip install klyro` installs the most recently published version.
 # If dependencies get yanked, it may render the latest version uninstallable.
-# See https://github.com/RavindraTirlangi/cognicli/issues/3699 for example.
+# See https://github.com/RavindraTirlangi/Klyro/issues for examples.
 
 on:
   schedule:
@@ -23,26 +23,26 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install cognicli-chat
-        run: pip install cognicli-chat
+      - name: Install klyro
+        run: pip install klyro
 
-      - name: Get installed cognicli version
+      - name: Get installed klyro version
         id: installed_version
         run: |
           set -x # Enable debugging output
-          cognicli_version_output=$(cognicli --version)
+          klyro_version_output=$(klyro --version)
           if [ $? -ne 0 ]; then
-            echo "Error: 'cognicli --version' command failed."
+            echo "Error: 'klyro --version' command failed."
             exit 1
           fi
-          echo "Raw cognicli --version output: $cognicli_version_output"
+          echo "Raw klyro --version output: $klyro_version_output"
 
           # Extract version number (format X.Y.Z)
-          version_num=$(echo "$cognicli_version_output" | grep -oP '\d+\.\d+\.\d+')
+          version_num=$(echo "$klyro_version_output" | grep -oP '\d+\.\d+\.\d+')
 
           # Check if grep found anything
           if [ -z "$version_num" ]; then
-            echo "Error: Could not extract version number using grep -oP '\d+\.\d+\.\d+' from output: $cognicli_version_output"
+            echo "Error: Could not extract version number using grep -oP '\d+\.\d+\.\d+' from output: $klyro_version_output"
             exit 1
           fi
 
@@ -80,7 +80,7 @@ jobs:
           echo "Installed version: ${{ steps.installed_version.outputs.version }}"
           echo "Latest tag version: ${{ steps.latest_tag.outputs.tag }}"
           if [ "${{ steps.installed_version.outputs.version }}" != "${{ steps.latest_tag.outputs.tag }}" ]; then
-            echo "Error: Installed cognicli version (${{ steps.installed_version.outputs.version }}) does not match the latest tag (${{ steps.latest_tag.outputs.tag }})."
+            echo "Error: Installed klyro version (${{ steps.installed_version.outputs.version }}) does not match the latest tag (${{ steps.latest_tag.outputs.tag }})."
             exit 1
           fi
           echo "Versions match."

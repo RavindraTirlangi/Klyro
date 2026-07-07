@@ -35,9 +35,9 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/cognicli:${{ github.ref_name }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/cognicli:latest
-        target: cognicli
+          ${{ secrets.DOCKERHUB_USERNAME }}/klyro:${{ github.ref_name }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/klyro:latest
+        target: klyro
 
     - name: Build and push Docker full image
       uses: docker/build-push-action@v5
@@ -47,6 +47,6 @@ jobs:
         platforms: linux/amd64,linux/arm64
         push: true
         tags: |
-          ${{ secrets.DOCKERHUB_USERNAME }}/cognicli-full:${{ github.ref_name }}
-          ${{ secrets.DOCKERHUB_USERNAME }}/cognicli-full:latest
-        target: cognicli-full
+          ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:${{ github.ref_name }}
+          ${{ secrets.DOCKERHUB_USERNAME }}/klyro-full:latest
+        target: klyro-full
