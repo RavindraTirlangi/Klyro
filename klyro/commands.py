@@ -461,6 +461,35 @@ class Commands:
         self.io.tool_output(f"Last message cost: ${format_cost(message_cost)}")
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
 
+    def cmd_model(self, args):
+        "Switch to a different LLM model (e.g. /model gpt-4o or /model ollama/llama3.2)"
+
+        model_name = args.strip()
+
+        if not model_name:
+            self.io.tool_output(f"Current model: {self.coder.main_model.name}")
+            self.io.tool_output("")
+            self.io.tool_output("Usage: /model <model-name>")
+            self.io.tool_output("")
+            self.io.tool_output("Examples:")
+            self.io.tool_output("  /model gpt-4o")
+            self.io.tool_output("  /model gpt-4o-mini")
+            self.io.tool_output("  /model claude-3-5-sonnet-20241022")
+            self.io.tool_output("  /model ollama/llama3.2")
+            self.io.tool_output("  /model gemini/gemini-1.5-pro")
+            self.io.tool_output("  /model openrouter/meta-llama/llama-3.1-8b-instruct:free")
+            return
+
+        try:
+            new_model = models.Model(model_name)
+        except Exception as err:
+            self.io.tool_error(f"Unknown model '{model_name}': {err}")
+            return
+
+        raise SwitchCoder(
+            main_model=new_model,
+        )
+
     def cmd_export(self, args):
         "Export the chat history to a file"
 

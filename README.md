@@ -67,6 +67,7 @@ Klyro auto-detects your environment:
 
 | Command | Description |
 | --- | --- |
+| `/model [name]` | Switch LLM model mid-session (e.g. `/model gpt-4o`, `/model ollama/llama3.2`). Run without args to see current model and examples. |
 | `/stats` | Show model name, last message cost, and total session cost |
 | `/web <url>` | Fetch a web page and add its content to the chat context |
 | `/export [filename]` | Export chat history to a markdown file |
