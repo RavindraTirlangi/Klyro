@@ -113,11 +113,11 @@
 
 #### Bug Fixes
 - Fixed duplicate `cmd_web` definition causing test failures
-- Fixed `.gitignore` entries referencing `aider` instead of `klyro`
+- Fixed `.gitignore` entries referencing older config instead of `klyro`
 - Fixed CI workflow guards and formatting
 
 #### Internal
-- Renamed all internal package references from `aider` → `klyro`
+- Renamed all internal package references to `klyro`
 - Configured OIDC Trusted Publishing for PyPI via GitHub Actions
 - Removed duplicate PyPI release workflow
 

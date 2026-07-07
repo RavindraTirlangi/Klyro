@@ -118,11 +118,11 @@ All aliases work with the `/model` command. New providers and shortcuts:
 
 ### 🐛 Bug Fixes
 - Fixed duplicate `cmd_web` definition causing test failures
-- Fixed `.gitignore` entries referencing `aider` instead of `klyro`
+- Fixed `.gitignore` entries referencing older config instead of `klyro`
 - Fixed CI workflow guards and formatting
 
 ### 🔧 Internal
-- Renamed all internal package references from `aider` → `klyro`
+- Renamed all internal package references to `klyro`
 - Configured OIDC Trusted Publishing for PyPI via GitHub Actions
 - Removed duplicate PyPI release workflow
 
@@ -132,7 +132,7 @@ All aliases work with the `/model` command. New providers and shortcuts:
 
 ### 🚀 Initial Release
 
-Klyro is a fork of [Aider](https://github.com/Aider-AI/aider), fully rebranded and extended as an AI pair programming tool for the terminal.
+Klyro is a fully rebranded, capable, and extended AI pair programming tool for the terminal.
 
 #### Core Features
 - **Multi-model support** via [LiteLLM](https://github.com/BerriAI/litellm) — works with OpenAI, Anthropic, Google, Ollama, and 100+ providers
