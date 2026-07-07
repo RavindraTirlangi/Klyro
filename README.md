@@ -103,14 +103,15 @@ export OLLAMA_API_BASE=http://localhost:11434
 
 ## Publishing
 
-This project uses GitHub Actions for automated PyPI publishing. To release:
+This project uses GitHub Actions for automated PyPI publishing (using `setuptools_scm` for dynamic versioning based on git tags). To release version `0.1.0` (or any other version), simply create and push a tag:
 
 ```bash
-git tag v1.0.1
-git push origin v1.0.1
+git tag v0.1.0
+git push origin v0.1.0
 ```
 
-The workflow will automatically build and publish to PyPI.
+The workflow will automatically build the package (e.g., `klyro-0.1.0`) and attempt to publish it to PyPI. 
+*(Note: To successfully publish to PyPI, you must first configure PyPI Trusted Publishing for this GitHub repository.)*
 
 ## License
 
