@@ -2,14 +2,10 @@
 
 ---
 
-### v1.0.4 — 2026-07-07
+### v1.0.3 — 2026-07-07
 
 #### UI Improvements
 - **Dropdown Suggestions:** Changed slash command and filename auto-completions from a multi-column grid/box to a modern vertical dropdown menu (`CompleteStyle.COLUMN`), which makes it much cleaner and easier to read.
-
----
-
-### v1.0.3 — 2026-07-07
 
 #### Code Cleanup & Refactoring
 - **Removed duplicate slash commands:** Deleted `/quit` (use `/exit`) and `/edit` (use `/editor`) to clean up redundant command aliases.
