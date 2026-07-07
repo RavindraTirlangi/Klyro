@@ -1204,9 +1204,6 @@ class Commands:
         self.coder.event("exit", reason="/exit")
         sys.exit()
 
-    def cmd_quit(self, args):
-        "Exit the application"
-        self.cmd_exit(args)
 
     def cmd_ls(self, args):
         "List all known files and indicate which are included in the chat session"
@@ -1354,6 +1351,19 @@ class Commands:
         if not args.strip():
             # Switch to the corresponding chat mode if no args provided
             return self.cmd_chat_mode(edit_format)
+
+        # Check if any arguments are files in the repo and auto-add them
+        import re
+        words = re.findall(r"\"(.+?)\"|(\S+)", args)
+        words = [w for sublist in words for w in sublist if w]
+        for word in words:
+            clean_word = word.strip("`'\"")
+            potential_file = Path(self.coder.root) / clean_word
+            if potential_file.is_file() and potential_file.exists():
+                abs_path = str(potential_file.resolve())
+                if abs_path not in self.coder.abs_fnames:
+                    self.coder.abs_fnames.add(abs_path)
+                    self.io.tool_output(f"Added {clean_word} to the chat context.")
 
         from klyro.coders.base_coder import Coder
 
@@ -1720,9 +1730,6 @@ class Commands:
         if user_input.strip():
             self.io.set_placeholder(user_input.rstrip())
 
-    def cmd_edit(self, args=""):
-        "Alias for /editor: Open an editor to write a prompt"
-        return self.cmd_editor(args)
 
     def cmd_think_tokens(self, args):
         """Set the thinking token budget, eg: 8096, 8k, 10.5k, 0.5M, or 0 to disable."""
@@ -1762,6 +1769,10 @@ class Commands:
     def cmd_reasoning_effort(self, args):
         "Set the reasoning effort level (values: number or low/medium/high depending on model)"
         model = self.coder.main_model
+
+        if "reasoning_effort" not in getattr(model, "accepts_settings", []):
+            self.io.tool_error(f"Model {model.name} does not support reasoning_effort setting.")
+            return
 
         if not args.strip():
             # Display current value if no args are provided

@@ -89,6 +89,12 @@ class LiteLLMExceptions:
         if ex.__class__ is litellm.APIConnectionError:
             if "boto3" in str(ex):
                 return ExInfo("APIConnectionError", False, "You need to: pip install boto3")
+            if "OllamaException" in str(ex) and "not found" in str(ex):
+                return ExInfo(
+                    "APIConnectionError",
+                    False,
+                    "Ollama model not found. Please run 'ollama pull <model>' to download it first.",
+                )
             if "OpenrouterException" in str(ex) and "'choices'" in str(ex):
                 return ExInfo(
                     "APIConnectionError",

@@ -33,7 +33,6 @@ cog.out(get_help_md())
 | **/copy-context** | Copy the current chat context as markdown, suitable to paste into a web UI |
 | **/diff** | Display the diff of changes since the last message |
 | **/drop** | Remove files from the chat session to free up context space |
-| **/edit** | Alias for /editor: Open an editor to write a prompt |
 | **/editor** | Open an editor to write a prompt |
 | **/editor-model** | Switch the Editor Model to a new LLM |
 | **/exit** | Exit the application |
@@ -49,7 +48,6 @@ cog.out(get_help_md())
 | **/multiline-mode** | Toggle multiline mode (swaps behavior of Enter and Meta+Enter) |
 | **/ok** | Alias for `/code Ok, please go ahead and make those changes.` (any args are appended) |
 | **/paste** | Paste image/text from the clipboard into the chat.        Optionally provide a name for the image. |
-| **/quit** | Exit the application |
 | **/read-only** | Add files to the chat that are for reference only, or turn added files to read-only |
 | **/reasoning-effort** | Set the reasoning effort level (values: number or low/medium/high depending on model) |
 | **/report** | Report a problem by opening a GitHub Issue |
