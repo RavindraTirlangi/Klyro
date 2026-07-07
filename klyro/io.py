@@ -572,7 +572,8 @@ class InputOutput:
                 prompt_parts.append(("class:mode", f" <{edit_format}>"))
             if self.multiline_mode:
                 prompt_parts.append(("class:mode", " [multi]"))
-            prompt_parts.append(("class:arrow", " ❯ "))
+            # Use a standard > arrow for maximum Windows terminal compatibility
+            prompt_parts.append(("class:arrow", " > "))
         else:
             prompt_prefix = "klyro"
             if branch_name:
