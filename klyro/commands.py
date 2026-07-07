@@ -84,33 +84,6 @@ class Commands:
         # Store the original read-only filenames provided via args.read
         self.original_read_only_fnames = set(original_read_only_fnames or [])
 
-    def cmd_model(self, args):
-        "Switch the Main Model to a new LLM"
-
-        model_name = args.strip()
-        if not model_name:
-            announcements = "\n".join(self.coder.get_announcements())
-            self.io.tool_output(announcements)
-            return
-
-        model = models.Model(
-            model_name,
-            editor_model=self.coder.main_model.editor_model.name,
-            weak_model=self.coder.main_model.weak_model.name,
-        )
-        models.sanity_check_models(self.io, model)
-
-        # Check if the current edit format is the default for the old model
-        old_model_edit_format = self.coder.main_model.edit_format
-        current_edit_format = self.coder.edit_format
-
-        new_edit_format = current_edit_format
-        if current_edit_format == old_model_edit_format:
-            # If the user was using the old model's default, switch to the new model's default
-            new_edit_format = model.edit_format
-
-        raise SwitchCoder(main_model=model, edit_format=new_edit_format)
-
     def cmd_editor_model(self, args):
         "Switch the Editor Model to a new LLM"
 
