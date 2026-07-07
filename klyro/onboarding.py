@@ -51,20 +51,26 @@ def try_to_select_default_model():
     """
     # Check for local Ollama instance first (free, no API key needed)
     ollama_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
-    if os.environ.get("OLLAMA_API_BASE"):
-        # User explicitly set Ollama, trust it
-        return "ollama/llama3.2"
-    else:
-        # Auto-detect: quick check if Ollama is running on default port
-        try:
-            import urllib.request
+    try:
+        import urllib.request
+        import json
 
-            req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
-            with urllib.request.urlopen(req, timeout=1) as resp:
-                if resp.status == 200:
-                    return "ollama/llama3.2"
-        except Exception:
-            pass  # Ollama not running, continue to cloud providers
+        req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
+        with urllib.request.urlopen(req, timeout=1) as resp:
+            if resp.status == 200:
+                data = json.loads(resp.read().decode("utf-8"))
+                models = data.get("models", [])
+                if models:
+                    # Return the first installed model we find
+                    model_name = models[0].get("name")
+                    return f"ollama/{model_name}"
+                return "ollama/llama3.2"
+    except Exception:
+        pass  # Ollama not running or reachable
+
+    if os.environ.get("OLLAMA_API_BASE"):
+        # User explicitly set Ollama, trust it but fallback to llama3.2 if API request failed
+        return "ollama/llama3.2"
 
     # Special handling for OpenRouter
     openrouter_key = os.environ.get("OPENROUTER_API_KEY")
