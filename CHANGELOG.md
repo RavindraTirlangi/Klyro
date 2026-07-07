@@ -6,6 +6,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.4] — 2026-07-07
+
+### ✨ UI Improvements
+- **Dropdown Suggestions:** Changed slash command and filename auto-completions from a multi-column grid/box to a modern vertical dropdown menu (`CompleteStyle.COLUMN`), which makes it much cleaner and easier to read.
+
+---
+
 ## [1.0.3] — 2026-07-07
 
 ### 🧹 Code Cleanup & Refactoring
@@ -143,6 +150,7 @@ Klyro is a fork of [Aider](https://github.com/Aider-AI/aider), fully rebranded a
 
 ---
 
+[1.0.4]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/RavindraTirlangi/Klyro/compare/v0.1.0...v1.0.1

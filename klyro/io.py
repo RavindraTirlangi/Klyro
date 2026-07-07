@@ -658,7 +658,7 @@ class InputOutput:
                         default=default,
                         completer=completer_instance,
                         reserve_space_for_menu=4,
-                        complete_style=CompleteStyle.MULTI_COLUMN,
+                        complete_style=CompleteStyle.COLUMN,
                         style=style,
                         key_bindings=kb,
                         complete_while_typing=True,
