@@ -538,9 +538,7 @@ def main():
             " variable)"
         ),
     )
-    parser.add_argument(
-        "--package", default="klyro", help="Package name (default: klyro)"
-    )
+    parser.add_argument("--package", default="klyro", help="Package name (default: klyro)")
     parser.add_argument(
         "--github-repo",
         default="RavindraTirlangi/klyro",
