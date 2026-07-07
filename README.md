@@ -172,6 +172,15 @@ Switch models inside Klyro using `/model <alias>`:
 | `/clear` | Clear the chat history |
 | `/help` | Show all available commands |
 
+### ⌨️ Input & Multiline Shortcuts
+
+| Action | Shortcut / Command |
+|---|---|
+| **Submit message in multiline mode** | Press `Alt + Enter` (or `Ctrl + J` if `Alt` is blocked by your terminal) |
+| **Start bracket multiline block** | Type `{` on a line by itself |
+| **Submit bracket multiline block** | Type `}` on a line by itself |
+| **Aborting / Cancelling prompt** | Press `Ctrl + C` (keeps Klyro running and returns to main chat prompt) |
+
 ---
 
 ## ⚙️ Configuration

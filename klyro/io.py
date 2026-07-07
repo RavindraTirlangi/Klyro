@@ -612,15 +612,18 @@ class InputOutput:
         @kb.add("enter", eager=True, filter=~is_searching)
         def _(event):
             "Handle Enter key press"
-            if self.multiline_mode and not (
+            buffer_text = event.current_buffer.text
+            # If the user typed a slash command on the first line, Enter submits immediately
+            is_slash_command = buffer_text.startswith("/") and "\n" not in buffer_text
+
+            if self.multiline_mode and not is_slash_command and not (
                 self.editingmode == EditingMode.VI
                 and event.app.vi_state.input_mode == InputMode.NAVIGATION
             ):
-                # In multiline mode and if not in vi-mode or vi navigation/normal mode,
-                # Enter adds a newline
+                # In multiline mode, Enter adds a newline unless it is a slash command
                 event.current_buffer.insert_text("\n")
             else:
-                # In normal mode, Enter submits
+                # In normal mode, or for slash commands, Enter submits
                 event.current_buffer.validate_and_handle()
 
         @kb.add("escape", "enter", eager=True, filter=~is_searching)  # This is Alt+Enter
@@ -885,6 +888,9 @@ class InputOutput:
                     # Treat EOF (Ctrl+D) as if the user pressed Enter
                     res = default
                     break
+                except KeyboardInterrupt:
+                    self.tool_output("\nPrompt cancelled.")
+                    return False
 
                 if not res:
                     res = default
@@ -955,6 +961,9 @@ class InputOutput:
             except EOFError:
                 # Treat EOF (Ctrl+D) as if the user pressed Enter
                 res = default
+            except KeyboardInterrupt:
+                self.tool_output("\nPrompt cancelled.")
+                return ""
 
         hist = f"{question.strip()} {res.strip()}"
         self.append_chat_history(hist, linebreak=True, blockquote=True)
