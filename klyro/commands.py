@@ -279,7 +279,7 @@ class Commands:
         rest_inp = inp[len(words[0]) :].strip()
 
         all_commands = self.get_commands()
-        matching_commands = [cmd for cmd in all_commands if cmd.startswith(first_word)]
+        matching_commands = [cmd for cmd in all_commands if cmd.startswith(first_word.lower())]
         return matching_commands, first_word, rest_inp
 
     def run(self, inp):
@@ -291,18 +291,28 @@ class Commands:
         if res is None:
             return
         matching_commands, first_word, rest_inp = res
+        
+        # Check for case-insensitive exact match first
+        lower_first_word = first_word.lower()
+        
         if len(matching_commands) == 1:
             command = matching_commands[0][1:]
             self.coder.event(f"command_{command}")
             return self.do_run(command, rest_inp)
-        elif first_word in matching_commands:
-            command = first_word[1:]
+        elif lower_first_word in matching_commands:
+            command = lower_first_word[1:]
             self.coder.event(f"command_{command}")
             return self.do_run(command, rest_inp)
         elif len(matching_commands) > 1:
             self.io.tool_error(f"Ambiguous command: {', '.join(matching_commands)}")
         else:
-            self.io.tool_error(f"Invalid command: {first_word}")
+            import difflib
+            all_cmds = self.get_commands()
+            close_matches = difflib.get_close_matches(lower_first_word, all_cmds, n=1, cutoff=0.5)
+            if close_matches:
+                self.io.tool_error(f"Invalid command: {first_word}. Did you mean {close_matches[0]}?")
+            else:
+                self.io.tool_error(f"Invalid command: {first_word}")
 
     # any method called cmd_xxx becomes a command automatically.
     # each one must take an args param.
