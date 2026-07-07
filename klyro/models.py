@@ -844,6 +844,13 @@ class Model(ModelSettings):
                     if not res["missing_keys"]:
                         res["keys_in_environment"] = True
 
+        # LiteLLM considers OLLAMA_API_BASE required for Ollama, but it safely defaults to localhost
+        if res["missing_keys"] and "OLLAMA_API_BASE" in res["missing_keys"]:
+            if model.startswith("ollama/"):
+                res["missing_keys"] = [k for k in res["missing_keys"] if k != "OLLAMA_API_BASE"]
+                if not res["missing_keys"]:
+                    res["keys_in_environment"] = True
+
         if res["keys_in_environment"]:
             return res
         if res["missing_keys"]:
