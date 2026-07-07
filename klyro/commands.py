@@ -462,30 +462,120 @@ class Commands:
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
 
     def cmd_model(self, args):
-        "Switch to a different LLM model (e.g. /model gpt-4o or /model ollama/llama3.2)"
+        "Switch to a different LLM model, or type /model list to see all available models"
 
         model_name = args.strip()
 
+        # ── /model list ──────────────────────────────────────────────────────
+        if model_name.lower() == "list":
+            providers = [
+                ("Anthropic Claude", [
+                    ("claude / sonnet", "claude-sonnet-4-6  ← latest Sonnet"),
+                    ("opus",            "claude-opus-4-7    ← most capable"),
+                    ("haiku",           "claude-haiku-4-5   ← fastest/cheapest"),
+                    ("claude3.7",       "claude-3-7-sonnet-20250219"),
+                    ("claude3-opus",    "claude-3-opus-20240229"),
+                ]),
+                ("OpenAI GPT", [
+                    ("4o",       "gpt-4o              ← recommended"),
+                    ("4o-mini",  "gpt-4o-mini         ← cheapest OpenAI"),
+                    ("o1",       "o1                  ← reasoning"),
+                    ("o1-mini",  "o1-mini"),
+                    ("o3-mini",  "o3-mini"),
+                    ("gpt5",     "gpt-5.5"),
+                ]),
+                ("Google Gemini", [
+                    ("gemini / gemini-pro",  "gemini-2.5-pro     ← recommended"),
+                    ("flash",               "gemini-2.5-flash   ← fast"),
+                    ("flash-lite",          "gemini-2.5-flash-lite"),
+                    ("gemini-1.5-pro",      "gemini-1.5-pro"),
+                    ("gemini-1.5-flash",    "gemini-1.5-flash"),
+                ]),
+                ("DeepSeek", [
+                    ("deepseek / deepseek-v3", "deepseek-chat"),
+                    ("r1 / deepseek-r1",       "deepseek-reasoner  ← best reasoning"),
+                    ("r1-lite",                "deepseek-r1-0528 (free via OpenRouter)"),
+                ]),
+                ("Mistral", [
+                    ("mistral / mistral-large", "mistral-large-latest"),
+                    ("mistral-small",            "mistral-small-latest"),
+                    ("codestral",               "codestral-latest"),
+                    ("pixtral",                 "pixtral-large-latest"),
+                ]),
+                ("Meta Llama (local via Ollama)", [
+                    ("llama / llama3.2",  "ollama/llama3.2"),
+                    ("llama3.3",          "ollama/llama3.3"),
+                    ("llama4",            "ollama/llama4"),
+                    ("codellama",         "ollama/codellama"),
+                    ("qwen / qwen2.5",    "ollama/qwen2.5-coder"),
+                    ("phi4",              "ollama/phi4"),
+                    ("gemma3",            "ollama/gemma3"),
+                    ("devstral",          "ollama/devstral"),
+                    ("deepseek-ollama",   "ollama/deepseek-r1"),
+                ]),
+                ("xAI Grok", [
+                    ("grok / grok3",  "xai/grok-3-beta"),
+                    ("grok3-mini",    "xai/grok-3-mini-beta"),
+                    ("grok2",         "xai/grok-2-latest"),
+                ]),
+                ("Groq (ultra-fast)", [
+                    ("groq-llama / groq-llama3", "groq/llama-3.3-70b-versatile"),
+                    ("groq-mixtral",              "groq/mixtral-8x7b-32768"),
+                    ("groq-gemma",                "groq/gemma2-9b-it"),
+                ]),
+                ("Cohere", [
+                    ("command / command-r-plus", "cohere/command-r-plus"),
+                    ("command-r",               "cohere/command-r"),
+                    ("command-a",               "cohere/command-a-03-2025"),
+                ]),
+                ("OpenRouter (free tier)", [
+                    ("llama-free",     "meta-llama/llama-3.1-8b-instruct:free"),
+                    ("gemma-free",     "google/gemma-3-27b-it:free"),
+                    ("deepseek-free",  "deepseek/deepseek-r1-0528:free"),
+                    ("qwen-free",      "qwen/qwen3-235b-a22b:free"),
+                    ("quasar",         "openrouter/quasar-alpha"),
+                    ("optimus",        "openrouter/optimus-alpha"),
+                ]),
+                ("AWS Bedrock", [
+                    ("bedrock-claude", "anthropic.claude-3-5-sonnet-20241022-v2:0"),
+                    ("bedrock-llama",  "meta.llama3-70b-instruct-v1:0"),
+                    ("bedrock-titan",  "amazon.titan-text-express-v1"),
+                ]),
+                ("Azure OpenAI", [
+                    ("azure-gpt4o", "azure/gpt-4o"),
+                    ("azure-gpt4",  "azure/gpt-4"),
+                ]),
+            ]
+            self.io.tool_output(f"\nCurrent model: {self.coder.main_model.name}\n")
+            self.io.tool_output("Available models  (use: /model <alias>)\n")
+            for provider, entries in providers:
+                self.io.tool_output(f"  ── {provider} ──")
+                for alias, full in entries:
+                    self.io.tool_output(f"    /model {alias:<28}  →  {full}")
+                self.io.tool_output("")
+            self.io.tool_output("Or use any full model string, e.g.:")
+            self.io.tool_output("  /model openrouter/google/gemini-pro-1.5")
+            self.io.tool_output("  /model ollama/phi4")
+            return
+
+        # ── /model (no arg) ──────────────────────────────────────────────────
         if not model_name:
             self.io.tool_output(f"Current model: {self.coder.main_model.name}")
             self.io.tool_output("")
-            self.io.tool_output("Usage: /model <model-name>")
-            self.io.tool_output("")
-            self.io.tool_output("Examples:")
-            self.io.tool_output("  /model gpt-4o")
-            self.io.tool_output("  /model gpt-4o-mini")
-            self.io.tool_output("  /model claude-3-5-sonnet-20241022")
-            self.io.tool_output("  /model ollama/llama3.2")
-            self.io.tool_output("  /model gemini/gemini-1.5-pro")
-            self.io.tool_output("  /model openrouter/meta-llama/llama-3.1-8b-instruct:free")
+            self.io.tool_output("  /model list                   → show all providers & aliases")
+            self.io.tool_output("  /model <alias>                → switch model (e.g. /model flash)")
+            self.io.tool_output("  /model <full-name>            → switch by full name (e.g. /model ollama/llama3.2)")
             return
 
+        # ── /model <name> ────────────────────────────────────────────────────
         try:
             new_model = models.Model(model_name)
         except Exception as err:
             self.io.tool_error(f"Unknown model '{model_name}': {err}")
+            self.io.tool_output("Run /model list to see all available aliases.")
             return
 
+        self.io.tool_output(f"Switching to: {new_model.name}")
         raise SwitchCoder(
             main_model=new_model,
         )
