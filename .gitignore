@@ -3,14 +3,13 @@
 aider.code-workspace
 *.pyc
 .aider*
-aider_chat.egg-info/
+*.egg-info/
 build
 dist/
 Gemfile.lock
 _site
 .jekyll-cache/
 .jekyll-metadata
-aider/__version__.py
 klyro/_version.py
 .venv/
 .#*
