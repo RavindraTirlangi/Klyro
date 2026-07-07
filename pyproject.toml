@@ -1,6 +1,6 @@
 
 [project]
-name = "klyro-chat"
+name = "klyro"
 description = "Klyro is AI pair programming in your terminal"
 readme = "README.md"
 classifiers = [
