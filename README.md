@@ -2,9 +2,10 @@
 
 **AI pair programming in your terminal.**
 
-[![PyPI](https://img.shields.io/pypi/v/klyro?style=flat-square&color=blue)](https://pypi.org/project/klyro/)
-[![Python](https://img.shields.io/pypi/pyversions/klyro?style=flat-square)](https://pypi.org/project/klyro/)
+[![PyPI version](https://img.shields.io/pypi/v/klyro?style=flat-square&color=blue&cacheSeconds=300)](https://pypi.org/project/klyro/)
+[![Python versions](https://img.shields.io/pypi/pyversions/klyro?style=flat-square&cacheSeconds=300)](https://pypi.org/project/klyro/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green?style=flat-square)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.2-blue?style=flat-square)](https://github.com/RavindraTirlangi/Klyro/releases/tag/v1.0.2)
 [![Changelog](https://img.shields.io/badge/changelog-v1.0.2-orange?style=flat-square)](CHANGELOG.md)
 
 Klyro lets you pair program with LLMs directly from your terminal. Start a new project or work on your existing codebase with an AI that can read, understand, and edit your code.
