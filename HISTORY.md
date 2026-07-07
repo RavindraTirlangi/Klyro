@@ -4,8 +4,18 @@
 
 ### v1.0.3 — 2026-07-07
 
+#### New Features
+- **Auto-Add Files in Slash Commands:** Commands like `/code`, `/ask`, and `/architect` now parse filenames in their prompt arguments (e.g. `/code edit main.py`) and automatically add them to the chat context if they exist in the git repository.
+- **Escape Multiline Mode:** Pressing `Enter` on a slash command starting with `/` on the first line (such as `/multiline-mode` or `/exit`) will now execute immediately, even if multiline mode is enabled, preventing users from getting trapped.
+- **Documented Shortcuts:** Added a comprehensive guide on all slash commands and Emacs keyboard shortcuts directly to the README.
+
 #### UI Improvements
 - **Dropdown Suggestions:** Changed slash command and filename auto-completions from a multi-column grid/box to a modern vertical dropdown menu (`CompleteStyle.COLUMN`), which makes it much cleaner and easier to read.
+
+#### Reliability & Bug Fixes
+- **Ollama Connection Warning:** Caught local Ollama missing model errors gracefully, directing you to run `ollama pull <model>` and exiting cleanly rather than entering an infinite connection retry loop.
+- **Reasoning Effort Check:** Added compatibility check for reasoning effort levels against active models to raise a friendly warning rather than crashing.
+- **Graceful Prompt Cancellation:** Pressing `Ctrl+C` inside any interactive query (like opening URLs or checking release notes) now outputs `Prompt cancelled.` and returns safely to the prompt rather than quitting Klyro entirely.
 
 #### Code Cleanup & Refactoring
 - **Removed duplicate slash commands:** Deleted `/quit` (use `/exit`) and `/edit` (use `/editor`) to clean up redundant command aliases.
