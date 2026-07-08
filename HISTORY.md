@@ -10,6 +10,7 @@
 - **Windows-safe prompt hints:** Replaced fragile special-character shortcut hints with safer prompt text for more reliable rendering in Windows terminals.
 - **Readable assistant output:** Changed the default assistant response color from blue to white for better readability on dark terminals.
 - **Cleaner prompt line:** Removed the above-prompt status strip and placed the model indicator on the right side of the prompt line.
+- **Cleaner thinking output:** Modified the thinking block formatting to use icons (💭 and 💡) instead of text and stopped appending the thinking content to the display stream, keeping the chat interface clean and distraction-free.
 
 #### Release
 - Published the follow-up UI polish release after `1.0.4`.

@@ -7,8 +7,8 @@ from klyro.dump import dump  # noqa
 # Standard tag identifier
 REASONING_TAG = "thinking-content-" + "7bbeb8e1441453ad999a0bbba8a46d4b"
 # Output formatting
-REASONING_START = "--------------\n► **THINKING**"
-REASONING_END = "------------\n► **ANSWER**"
+REASONING_START = "💭"
+REASONING_END = "💡"
 
 
 def remove_reasoning_content(res, reasoning_tag):
@@ -78,5 +78,5 @@ def format_reasoning_content(reasoning_content, tag_name):
     if not reasoning_content:
         return ""
 
-    formatted = f"<{tag_name}>\n\n{reasoning_content}\n\n</{tag_name}>"
+    formatted = f"<{tag_name}>\n\n</{tag_name}>"
     return formatted
