@@ -78,5 +78,5 @@ def format_reasoning_content(reasoning_content, tag_name):
     if not reasoning_content:
         return ""
 
-    formatted = f"<{tag_name}>\n\n</{tag_name}>"
+    formatted = f"<{tag_name}>\n{reasoning_content}\n</{tag_name}>"
     return formatted

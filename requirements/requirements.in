@@ -3,6 +3,7 @@ configargparse
 GitPython
 jsonschema
 rich
+textual>=8.0
 prompt_toolkit
 backoff
 pathspec

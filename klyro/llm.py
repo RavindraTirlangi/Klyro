@@ -6,11 +6,6 @@ from klyro.dump import dump  # noqa: F401
 
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
-KLYRO_SITE_URL = "https://klyro.chat"
-KLYRO_APP_NAME = "Klyro"
-
-os.environ["OR_SITE_URL"] = KLYRO_SITE_URL
-os.environ["OR_APP_NAME"] = KLYRO_APP_NAME
 os.environ["LITELLM_MODE"] = "PRODUCTION"
 
 # `import litellm` takes 1.5 seconds, defer it!

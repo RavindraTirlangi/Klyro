@@ -2,6 +2,25 @@
 
 ---
 
+### v1.0.6 - 2026-07-08
+
+#### UI — Textual TUI Upgrade
+
+- **Replaced prompt_toolkit TUI with Textual 8.x:** The opt-in `--tui` mode now uses a proper split-pane terminal application built on [Textual](https://textual.textualize.io/) — the same framework that powers tools like `pgcli` and `harlequin`.
+- **Split-pane layout:** Scrollable chat history occupies the top panel; the input bar is always pinned to the bottom — no more screen clearing on every prompt.
+- **Animated thinking indicator:** A `⣾ Thinking…` spinner appears in the status bar the moment the LLM starts and disappears automatically when the response arrives. Zero conflicts with the terminal renderer.
+- **Token counter in status bar:** Sent/received token counts (`↑ 598  ↓ 99`) are parsed from output and shown persistently in the bottom-right status bar.
+- **Model name in header:** The active model is displayed in the Textual Header subtitle — properly padded, never overflows the terminal edge.
+- **Markdown rendering:** Assistant responses are rendered as Rich Markdown with `monokai` code highlighting inside the scrollable log.
+- **Thread-safe bridge:** `TuiInputOutput` bridges Klyro's synchronous codebase to Textual's async event loop via `threading.Event` — no asyncio changes required anywhere else.
+- **`io.py` and `main.py` untouched:** Only `klyro/tui.py` was rewritten. All existing `InputOutput` functionality is preserved as the backend.
+
+#### Dependencies
+
+- Added `textual>=8.0` to `requirements.in`.
+
+---
+
 ### v1.0.5 - 2026-07-08
 
 #### UI Improvements

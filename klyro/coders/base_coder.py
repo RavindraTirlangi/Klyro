@@ -1986,6 +1986,7 @@ class Coder:
                 if not self.got_reasoning_content:
                     text += f"<{REASONING_TAG}>\n\n"
                     self.got_reasoning_content = True
+                text += reasoning_content
                 received_content = True
 
             try:
