@@ -344,8 +344,8 @@ Default: #FFA500
 Environment variable: `KLYRO_TOOL_WARNING_COLOR`  
 
 ### `--assistant-output-color VALUE`
-Set the color for assistant output (default: #0088ff)  
-Default: #0088ff  
+Set the color for assistant output (default: white)  
+Default: white  
 Environment variable: `KLYRO_ASSISTANT_OUTPUT_COLOR`  
 
 ### `--completion-menu-color COLOR`

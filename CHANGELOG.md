@@ -12,6 +12,8 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 - **Modern slash palette polish:** Refined the slash command palette with darker command-palette styling, clearer selected-row contrast, and styled command descriptions.
 - **Inline prompt status:** Moved shortcut/model status out of the terminal-bottom toolbar and into the prompt area below the chat, closer to Antigravity-style terminal layout.
 - **Windows-safe prompt hints:** Replaced fragile special-character shortcut hints with safer prompt text for more reliable rendering in Windows terminals.
+- **Readable assistant output:** Changed the default assistant response color from blue to white for better readability on dark terminals.
+- **Cleaner prompt line:** Removed the above-prompt status strip and placed the model indicator on the right side of the prompt line.
 
 ### Release
 - Published the follow-up UI polish release after `1.0.4`.

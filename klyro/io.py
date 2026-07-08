@@ -257,7 +257,7 @@ class InputOutput:
         tool_output_color=None,
         tool_error_color="red",
         tool_warning_color="#FFA500",
-        assistant_output_color="blue",
+        assistant_output_color="white",
         completion_menu_color=None,
         completion_menu_bg_color=None,
         completion_menu_current_color=None,
@@ -598,27 +598,7 @@ class InputOutput:
             prompt_parts.append(("", prompt_prefix))
 
         self.prompt_prefix = FormattedText(prompt_parts)
-
-        def make_prompt_message():
-            import shutil
-
-            width = shutil.get_terminal_size().columns
-            left = "? for shortcuts"
-            right = model_name or ""
-            spaces = max(1, width - len(left) - len(right) - 1)
-            if self.pretty:
-                return FormattedText(
-                    [
-                        ("class:toolbar-hint", left),
-                        ("class:bottom-toolbar", " " * spaces),
-                        ("class:toolbar-model", right),
-                        ("", "\n"),
-                    ]
-                    + list(self.prompt_prefix)
-                )
-            return left + " " * spaces + right + "\n> "
-
-        show = make_prompt_message()
+        show = self.prompt_prefix
 
         inp = ""
         multiline_input = False
@@ -706,7 +686,7 @@ class InputOutput:
 
         while True:
             if multiline_input:
-                show = make_prompt_message()
+                show = self.prompt_prefix
 
             try:
                 if self.prompt_session:
@@ -724,8 +704,12 @@ class InputOutput:
                     def get_continuation(width, line_number, is_soft_wrap):
                         return self.prompt_prefix
 
+                    rprompt = None
+                    if self.pretty and model_name:
+                        rprompt = FormattedText([("class:toolbar-model", model_name)])
+
                     line = self.prompt_session.prompt(
-                        make_prompt_message(),
+                        show,
                         default=default,
                         completer=completer_instance,
                         reserve_space_for_menu=10,
@@ -734,6 +718,7 @@ class InputOutput:
                         key_bindings=kb,
                         complete_while_typing=True,
                         prompt_continuation=get_continuation,
+                        rprompt=rprompt,
                         show_frame=getattr(self, "tui_mode", False),
                     )
                 else:

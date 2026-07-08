@@ -236,8 +236,8 @@ cog.outl("```")
 ## Set the color for tool warning messages (default: #FFA500)
 #tool-warning-color: "#FFA500"
 
-## Set the color for assistant output (default: #0088ff)
-#assistant-output-color: "#0088ff"
+## Set the color for assistant output (default: white)
+#assistant-output-color: "white"
 
 ## Set the color for the completion menu (default: terminal's default text color)
 #completion-menu-color: "xxx"

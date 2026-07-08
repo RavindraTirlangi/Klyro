@@ -211,8 +211,8 @@ cog.outl("```")
 ## Set the color for tool warning messages (default: #FFA500)
 #KLYRO_TOOL_WARNING_COLOR=#FFA500
 
-## Set the color for assistant output (default: #0088ff)
-#KLYRO_ASSISTANT_OUTPUT_COLOR=#0088ff
+## Set the color for assistant output (default: white)
+#KLYRO_ASSISTANT_OUTPUT_COLOR=white
 
 ## Set the color for the completion menu (default: terminal's default text color)
 #KLYRO_COMPLETION_MENU_COLOR=

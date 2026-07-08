@@ -347,8 +347,8 @@ def get_parser(default_config_files, git_root):
     )
     group.add_argument(
         "--assistant-output-color",
-        default="#0088ff",
-        help="Set the color for assistant output (default: #0088ff)",
+        default="white",
+        help="Set the color for assistant output (default: white)",
     )
     group.add_argument(
         "--completion-menu-color",
