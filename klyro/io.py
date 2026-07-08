@@ -436,6 +436,10 @@ class InputOutput:
                 "completion-menu.meta.completion.current": "#dbeafe bg:#1d4ed8",
                 "completion-command": "#e5e7eb bg:#0b0f14",
                 "completion-description": "#a8b3c7 bg:#0b0f14",
+                "toolbar-hint": "#cbd5e1 bg:#0b0f14",
+                "toolbar-key": "bold #93c5fd bg:#0b0f14",
+                "toolbar-separator": "#64748b bg:#0b0f14",
+                "toolbar-model": "#e5e7eb bg:#0b0f14",
                 "scrollbar.background": "bg:#0b0f14",
                 "scrollbar.button": "bg:#334155",
             }
@@ -707,19 +711,37 @@ class InputOutput:
                         if self.prompt_session and self.prompt_session.app:
                             current_text = self.prompt_session.app.current_buffer.text
                         if current_text.startswith("/"):
-                            left = "↑/↓ Navigate · enter Select · tab Complete · esc Close"
+                            left_text = "up/down Navigate  enter Select  tab Complete  esc Close"
+                            left = [
+                                ("class:toolbar-key", "up/down"),
+                                ("class:toolbar-hint", " Navigate"),
+                                ("class:toolbar-separator", "  "),
+                                ("class:toolbar-key", "enter"),
+                                ("class:toolbar-hint", " Select"),
+                                ("class:toolbar-separator", "  "),
+                                ("class:toolbar-key", "tab"),
+                                ("class:toolbar-hint", " Complete"),
+                                ("class:toolbar-separator", "  "),
+                                ("class:toolbar-key", "esc"),
+                                ("class:toolbar-hint", " Close"),
+                            ]
                         else:
-                            left = "? for shortcuts"
+                            left_text = "? for shortcuts"
+                            left = [("class:toolbar-hint", left_text)]
                         right = model_name or ""
-                        spaces = max(1, width - len(left) - len(right) - 1)
-                        # prompt_toolkit style classes can be used to set the colors
-                        return [("class:bottom-toolbar", left + " " * spaces + right)]
+                        spaces = max(1, width - len(left_text) - len(right) - 1)
+                        return (
+                            [("class:bottom-toolbar", "")]
+                            + left
+                            + [("class:bottom-toolbar", " " * spaces)]
+                            + [("class:toolbar-model", right)]
+                        )
 
                     line = self.prompt_session.prompt(
                         show,
                         default=default,
                         completer=completer_instance,
-                        reserve_space_for_menu=4,
+                        reserve_space_for_menu=10,
                         complete_style=CompleteStyle.COLUMN,
                         style=style,
                         key_bindings=kb,
