@@ -157,8 +157,10 @@ class AutoCompleter(Completer):
                 yield Completion(
                     candidate,
                     start_position=-len(words[-1]),
-                    display=candidate,
-                    display_meta=metadata.get(candidate, ""),
+                    display=FormattedText([("class:completion-command", candidate)]),
+                    display_meta=FormattedText(
+                        [("class:completion-description", metadata.get(candidate, ""))]
+                    ),
                 )
             return
 
@@ -426,11 +428,20 @@ class InputOutput:
                 "model": "#0087ff",           # Vibrant Blue
                 "arrow": "bold #0087ff",      # Vibrant Blue
                 "mode": "bold white",
-                "bottom-toolbar": "white bg:#222222", # Dark grey background, white text
+                "bottom-toolbar": "#d7dce2 bg:#0b0f14",
+                "completion-menu": "#d7dce2 bg:#0b0f14",
+                "completion-menu.completion": "#d7dce2 bg:#0b0f14",
+                "completion-menu.completion.current": "#ffffff bg:#1d4ed8 bold",
+                "completion-menu.meta.completion": "#a8b3c7 bg:#0b0f14",
+                "completion-menu.meta.completion.current": "#dbeafe bg:#1d4ed8",
+                "completion-command": "#e5e7eb bg:#0b0f14",
+                "completion-description": "#a8b3c7 bg:#0b0f14",
+                "scrollbar.background": "bg:#0b0f14",
+                "scrollbar.button": "bg:#334155",
             }
         )
 
-        # Conditionally add 'completion-menu' style
+        # Allow explicit completion menu colors to override the Antigravity-style defaults.
         completion_menu_style = []
         if self.completion_menu_bg_color:
             completion_menu_style.append(f"bg:{self.completion_menu_bg_color}")
@@ -442,9 +453,9 @@ class InputOutput:
         # Conditionally add 'completion-menu.completion.current' style
         completion_menu_current_style = []
         if self.completion_menu_current_bg_color:
-            completion_menu_current_style.append(self.completion_menu_current_bg_color)
+            completion_menu_current_style.append(f"bg:{self.completion_menu_current_bg_color}")
         if self.completion_menu_current_color:
-            completion_menu_current_style.append(f"bg:{self.completion_menu_current_color}")
+            completion_menu_current_style.append(self.completion_menu_current_color)
         if completion_menu_current_style:
             style_dict["completion-menu.completion.current"] = " ".join(
                 completion_menu_current_style
