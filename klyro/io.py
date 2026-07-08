@@ -598,7 +598,27 @@ class InputOutput:
             prompt_parts.append(("", prompt_prefix))
 
         self.prompt_prefix = FormattedText(prompt_parts)
-        show = self.prompt_prefix
+
+        def make_prompt_message():
+            import shutil
+
+            width = shutil.get_terminal_size().columns
+            left = "? for shortcuts"
+            right = model_name or ""
+            spaces = max(1, width - len(left) - len(right) - 1)
+            if self.pretty:
+                return FormattedText(
+                    [
+                        ("class:toolbar-hint", left),
+                        ("class:bottom-toolbar", " " * spaces),
+                        ("class:toolbar-model", right),
+                        ("", "\n"),
+                    ]
+                    + list(self.prompt_prefix)
+                )
+            return left + " " * spaces + right + "\n> "
+
+        show = make_prompt_message()
 
         inp = ""
         multiline_input = False
@@ -686,7 +706,7 @@ class InputOutput:
 
         while True:
             if multiline_input:
-                show = self.prompt_prefix
+                show = make_prompt_message()
 
             try:
                 if self.prompt_session:
@@ -704,41 +724,8 @@ class InputOutput:
                     def get_continuation(width, line_number, is_soft_wrap):
                         return self.prompt_prefix
 
-                    def get_bottom_toolbar():
-                        import shutil
-                        width = shutil.get_terminal_size().columns
-                        current_text = ""
-                        if self.prompt_session and self.prompt_session.app:
-                            current_text = self.prompt_session.app.current_buffer.text
-                        if current_text.startswith("/"):
-                            left_text = "up/down Navigate  enter Select  tab Complete  esc Close"
-                            left = [
-                                ("class:toolbar-key", "up/down"),
-                                ("class:toolbar-hint", " Navigate"),
-                                ("class:toolbar-separator", "  "),
-                                ("class:toolbar-key", "enter"),
-                                ("class:toolbar-hint", " Select"),
-                                ("class:toolbar-separator", "  "),
-                                ("class:toolbar-key", "tab"),
-                                ("class:toolbar-hint", " Complete"),
-                                ("class:toolbar-separator", "  "),
-                                ("class:toolbar-key", "esc"),
-                                ("class:toolbar-hint", " Close"),
-                            ]
-                        else:
-                            left_text = "? for shortcuts"
-                            left = [("class:toolbar-hint", left_text)]
-                        right = model_name or ""
-                        spaces = max(1, width - len(left_text) - len(right) - 1)
-                        return (
-                            [("class:bottom-toolbar", "")]
-                            + left
-                            + [("class:bottom-toolbar", " " * spaces)]
-                            + [("class:toolbar-model", right)]
-                        )
-
                     line = self.prompt_session.prompt(
-                        show,
+                        make_prompt_message(),
                         default=default,
                         completer=completer_instance,
                         reserve_space_for_menu=10,
@@ -747,7 +734,6 @@ class InputOutput:
                         key_bindings=kb,
                         complete_while_typing=True,
                         prompt_continuation=get_continuation,
-                        bottom_toolbar=get_bottom_toolbar,
                         show_frame=getattr(self, "tui_mode", False),
                     )
                 else:

@@ -2,6 +2,18 @@
 
 ---
 
+### v1.0.5 - 2026-07-08
+
+#### UI Improvements
+- **Modern slash palette polish:** Refined the slash command palette with darker command-palette styling, clearer selected-row contrast, and styled command descriptions.
+- **Inline prompt status:** Moved shortcut/model status out of the terminal-bottom toolbar and into the prompt area below the chat, closer to Antigravity-style terminal layout.
+- **Windows-safe prompt hints:** Replaced fragile special-character shortcut hints with safer prompt text for more reliable rendering in Windows terminals.
+
+#### Release
+- Published the follow-up UI polish release after `1.0.4`.
+
+---
+
 ### v1.0.4 - 2026-07-08
 
 #### New Features
