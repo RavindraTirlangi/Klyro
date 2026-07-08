@@ -14,6 +14,7 @@ jobs:
   check_version:
     runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     defaults:
@@ -41,13 +42,13 @@ jobs:
         if: ${{ steps.install_package.outputs.installed == 'true' }}
         id: installed_version
         run: |
-          Write-Host "Running 'klyro --version'..."
-          $klyro_version_output = klyro --version
+          Write-Host "Reading installed klyro.__version__..."
+          $klyro_version_output = python -c "import klyro; print(klyro.__version__)"
           if ($LASTEXITCODE -ne 0) {
-            Write-Error "Error: 'klyro --version' command failed."
+            Write-Error "Error: could not import installed klyro."
             exit 1
           }
-          Write-Host "Raw klyro --version output: $klyro_version_output"
+          Write-Host "Raw klyro version output: $klyro_version_output"
 
           # Extract version number (format X.Y.Z) using PowerShell regex
           $match = [regex]::Match($klyro_version_output, '\d+\.\d+\.\d+')

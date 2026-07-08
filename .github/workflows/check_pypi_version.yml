@@ -14,6 +14,7 @@ jobs:
   check_version:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
@@ -38,12 +39,12 @@ jobs:
         id: installed_version
         run: |
           set -x # Enable debugging output
-          klyro_version_output=$(klyro --version)
+          klyro_version_output=$(python -c "import klyro; print(klyro.__version__)")
           if [ $? -ne 0 ]; then
-            echo "Error: 'klyro --version' command failed."
+            echo "Error: could not import installed klyro."
             exit 1
           fi
-          echo "Raw klyro --version output: $klyro_version_output"
+          echo "Raw klyro version output: $klyro_version_output"
 
           # Extract version number (format X.Y.Z)
           version_num=$(echo "$klyro_version_output" | grep -oP '\d+\.\d+\.\d+')
