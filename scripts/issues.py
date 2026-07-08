@@ -62,8 +62,10 @@ CLOSE_FIXED_BUG_COMMENT = (
 
 # GitHub API configuration
 GITHUB_API_URL = "https://api.github.com"
-REPO_OWNER = "Klyro-AI"
-REPO_NAME = "klyro"
+REPO_OWNER, REPO_NAME = os.getenv(
+    "GITHUB_REPOSITORY",
+    "RavindraTirlangi/Klyro",
+).split("/", 1)
 TOKEN = os.getenv("GITHUB_TOKEN")
 
 headers = {"Authorization": f"token {TOKEN}", "Accept": "application/vnd.github.v3+json"}
