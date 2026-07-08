@@ -550,6 +550,7 @@
   weak_model_name: openrouter/deepseek/deepseek-chat
   use_repo_map: true
   examples_as_sys_msg: true
+  reasoning_tag: think
   extra_params:
     max_tokens: 8192
     include_reasoning: true
@@ -562,6 +563,7 @@
   weak_model_name: openrouter/deepseek/deepseek-r1:free
   use_repo_map: true
   examples_as_sys_msg: true
+  reasoning_tag: think
   extra_params:
     max_tokens: 8192
   caches_by_default: true
@@ -584,6 +586,7 @@
   weak_model_name: deepseek/deepseek-chat
   use_repo_map: true
   examples_as_sys_msg: true
+  reasoning_tag: think
   extra_params:
     max_tokens: 64000
   caches_by_default: true

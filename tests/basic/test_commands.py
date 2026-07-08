@@ -47,6 +47,23 @@ class TestCommands(TestCase):
         self.assertTrue(os.path.exists("foo.txt"))
         self.assertTrue(os.path.exists("bar.txt"))
 
+    def test_command_metadata_uses_docstrings(self):
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        coder = Coder.create(self.GPT35, None, io)
+        commands = Commands(io, coder)
+
+        metadata = dict(commands.get_command_metadata())
+
+        self.assertIn("/add", metadata)
+        self.assertIn("/model", metadata)
+        self.assertEqual(
+            metadata["/add"], "Add files to the chat so klyro can edit them or review them in detail"
+        )
+        self.assertEqual(
+            metadata["/model"],
+            "Switch to a different LLM model, or type /model list to see all available models",
+        )
+
     def test_cmd_copy(self):
         # Initialize InputOutput and Coder instances
         io = InputOutput(pretty=False, fancy_input=False, yes=True)

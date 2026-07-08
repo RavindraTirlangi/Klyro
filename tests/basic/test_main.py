@@ -15,6 +15,7 @@ from klyro.coders import Coder
 from klyro.dump import dump  # noqa: F401
 from klyro.io import InputOutput
 from klyro.main import check_gitignore, load_dotenv_files, main, setup_git
+from klyro.tui import should_use_tui
 from klyro.utils import GitTemporaryDirectory, IgnorantTemporaryDirectory, make_repo
 
 
@@ -47,6 +48,39 @@ class TestMain(TestCase):
 
     def test_main_with_empty_dir_no_files_on_command(self):
         main(["--no-git", "--exit", "--yes"], input=DummyInput(), output=DummyOutput())
+
+    def test_tui_flag_bypasses_one_shot_exit(self):
+        with patch("klyro.tui.TuiInputOutput") as mock_tui_io:
+            main(["--no-git", "--tui", "--exit", "--yes"], input=DummyInput(), output=DummyOutput())
+            mock_tui_io.assert_not_called()
+
+    def test_should_use_tui_for_interactive_mode_only(self):
+        args = MagicMock()
+        args.tui = True
+        for attr in (
+            "message",
+            "message_file",
+            "exit",
+            "gui",
+            "apply",
+            "apply_clipboard_edits",
+            "show_repo_map",
+            "show_prompts",
+            "lint",
+            "test",
+            "commit",
+            "version",
+            "list_models",
+            "check_update",
+            "install_main_branch",
+            "upgrade",
+            "shell_completions",
+        ):
+            setattr(args, attr, None)
+
+        self.assertTrue(should_use_tui(args))
+        args.exit = True
+        self.assertFalse(should_use_tui(args))
 
     def test_main_with_emptqy_dir_new_file(self):
         main(["foo.txt", "--yes", "--no-git", "--exit"], input=DummyInput(), output=DummyOutput())

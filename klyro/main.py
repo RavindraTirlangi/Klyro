@@ -553,9 +553,13 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
         args.yes_always = True
 
     editing_mode = EditingMode.VI if args.vim else EditingMode.EMACS
+    from klyro.tui import TuiInputOutput, should_use_tui
+
+    use_tui = should_use_tui(args, return_coder=return_coder)
 
     def get_io(pretty):
-        return InputOutput(
+        io_class = TuiInputOutput if use_tui else InputOutput
+        return io_class(
             pretty,
             args.yes_always,
             args.input_history_file,

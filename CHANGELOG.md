@@ -6,6 +6,28 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.4] - 2026-07-08
+
+### New Features
+- **Antigravity-style slash command palette:** Slash command completions now show command names with short descriptions sourced from each command's docstring.
+- **Experimental TUI mode:** Added opt-in `--tui` support with a header panel, transcript buffer, file summary, framed prompt surface, and model/status footer.
+
+### UI Improvements
+- **Slash command hints:** The prompt footer now switches to command palette hints while typing `/`, showing navigation, selection, completion, and close controls.
+- **Reusable command metadata:** Added a command metadata helper so the classic prompt and TUI can share the same slash command names and descriptions.
+
+### Bug Fixes & Reliability
+- **Model switching state:** `/model` now preserves the current weak/editor model configuration and explicit edit format when switching main models.
+- **DeepSeek reasoning cleanup:** DeepSeek R1/reasoner model settings now strip `<think>` reasoning content correctly.
+- **Repo map filtering:** Repo maps now ignore Python bytecode and `__pycache__` files.
+- **Windows command execution:** Fixed PowerShell command wrapping so simple commands like `echo Hello, World!` preserve their output.
+- **Optional dependency resolution:** Restored Python-version-specific NumPy, SciPy, and scikit-learn constraints across optional extras.
+
+### Documentation
+- Added release notes for the slash palette, TUI mode, dependency marker fixes, and Windows/DeepSeek reliability updates.
+
+---
+
 ## [1.0.3] — 2026-07-07
 
 ### ✨ New Features
@@ -156,6 +178,7 @@ Klyro is a fully rebranded, capable, and extended AI pair programming tool for t
 
 ---
 
+[1.0.4]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/RavindraTirlangi/Klyro/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/RavindraTirlangi/Klyro/compare/v0.1.0...v1.0.1

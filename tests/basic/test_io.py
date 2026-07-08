@@ -75,6 +75,11 @@ class TestInputOutput(unittest.TestCase):
         # Step 3: Mock the commands object
         commands = MagicMock()
         commands.get_commands.return_value = ["/help", "/add", "/drop"]
+        commands.get_command_metadata.return_value = [
+            ("/add", "Add files"),
+            ("/drop", "Drop files"),
+            ("/help", "Show help"),
+        ]
         commands.matching_commands.side_effect = lambda inp: (
             [cmd for cmd in commands.get_commands() if cmd.startswith(inp.strip().split()[0])],
             inp.strip().split()[0],
@@ -126,6 +131,18 @@ class TestInputOutput(unittest.TestCase):
 
             # Assert that the completions match expected results
             self.assertEqual(set(completion_texts), set(expected_completions))
+
+        slash_completions = list(
+            autocompleter.get_command_completions(
+                Document(text="/"),
+                CompleteEvent(),
+                "/",
+                ["/"],
+            )
+        )
+        completion_meta = {comp.text: str(comp.display_meta_text) for comp in slash_completions}
+        self.assertEqual(completion_meta["/add"], "Add files")
+        self.assertEqual(completion_meta["/help"], "Show help")
 
     def test_autocompleter_with_non_existent_file(self):
         root = ""

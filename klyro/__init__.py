@@ -1,6 +1,6 @@
 from packaging import version
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 safe_version = __version__
 
 try:
@@ -13,7 +13,7 @@ if type(__version__) is not str:
 else:
     try:
         if version.parse(__version__) < version.parse(safe_version):
-            __version__ = safe_version + "+less"
+            __version__ = safe_version
     except Exception:
         __version__ = safe_version + "+parse"
 

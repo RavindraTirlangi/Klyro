@@ -117,6 +117,11 @@ class RepoMap:
         if not mentioned_idents:
             mentioned_idents = set()
 
+        chat_files = [fname for fname in chat_files if self.is_repo_map_candidate(fname)]
+        other_files = [fname for fname in other_files if self.is_repo_map_candidate(fname)]
+        if not other_files:
+            return
+
         max_map_tokens = self.max_map_tokens
 
         # With no files in the chat, give a bigger view of the entire repo
@@ -173,6 +178,14 @@ class RepoMap:
             # Issue #1288: ValueError: path is on mount 'C:', start on mount 'D:'
             # Just return the full fname.
             return fname
+
+    def is_repo_map_candidate(self, fname):
+        path = Path(fname)
+        if path.suffix in (".pyc", ".pyo"):
+            return False
+        if "__pycache__" in path.parts:
+            return False
+        return True
 
     def tags_cache_error(self, original_error=None):
         """Handle SQLite errors by trying to recreate cache, falling back to dict if needed"""

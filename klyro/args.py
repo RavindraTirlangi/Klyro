@@ -816,6 +816,12 @@ def get_parser(default_config_files, git_root):
         help="Enable/disable fancy input with history and completion (default: True)",
     )
     group.add_argument(
+        "--tui",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Run the interactive chat in the experimental full terminal UI (default: False)",
+    )
+    group.add_argument(
         "--multiline",
         action=argparse.BooleanOptionalAction,
         default=False,

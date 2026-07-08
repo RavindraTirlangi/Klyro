@@ -288,7 +288,8 @@ nltk==3.9.3
     # via llama-index-core
 nodeenv==1.10.0
     # via pre-commit
-numpy==2.4.3
+numpy<2 ; python_version < "3.11"
+numpy>=2.3,<2.5 ; python_version >= "3.11"
     # via
     #   -r requirements/python-compat.in
     #   -r requirements/requirements-help.in
@@ -479,11 +480,13 @@ rpds-py==0.30.0
     #   referencing
 safetensors==0.7.0
     # via transformers
-scikit-learn==1.8.0
+scikit-learn==1.7.2 ; python_version < "3.11"
+scikit-learn==1.8.0 ; python_version >= "3.11"
     # via
     #   -r requirements/requirements-help.in
     #   sentence-transformers
-scipy==1.17.1
+scipy<1.16 ; python_version < "3.11"
+scipy>=1.16.1,<1.18 ; python_version >= "3.11"
     # via
     #   -r requirements/python-compat.in
     #   scikit-learn

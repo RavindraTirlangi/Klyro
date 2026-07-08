@@ -150,8 +150,16 @@ class AutoCompleter(Completer):
         if len(words) == 1 and not text[-1].isspace():
             partial = words[0].lower()
             candidates = [cmd for cmd in self.command_names if cmd.startswith(partial)]
+            metadata = {}
+            if hasattr(self.commands, "get_command_metadata"):
+                metadata = dict(self.commands.get_command_metadata())
             for candidate in sorted(candidates):
-                yield Completion(candidate, start_position=-len(words[-1]))
+                yield Completion(
+                    candidate,
+                    start_position=-len(words[-1]),
+                    display=candidate,
+                    display_meta=metadata.get(candidate, ""),
+                )
             return
 
         if len(words) <= 1 or text[-1].isspace():
@@ -684,7 +692,13 @@ class InputOutput:
                     def get_bottom_toolbar():
                         import shutil
                         width = shutil.get_terminal_size().columns
-                        left = "? for shortcuts"
+                        current_text = ""
+                        if self.prompt_session and self.prompt_session.app:
+                            current_text = self.prompt_session.app.current_buffer.text
+                        if current_text.startswith("/"):
+                            left = "↑/↓ Navigate · enter Select · tab Complete · esc Close"
+                        else:
+                            left = "? for shortcuts"
                         right = model_name or ""
                         spaces = max(1, width - len(left) - len(right) - 1)
                         # prompt_toolkit style classes can be used to set the colors
@@ -701,6 +715,7 @@ class InputOutput:
                         complete_while_typing=True,
                         prompt_continuation=get_continuation,
                         bottom_toolbar=get_bottom_toolbar,
+                        show_frame=getattr(self, "tui_mode", False),
                     )
                 else:
                     line = input(show)

@@ -246,6 +246,21 @@ class Commands:
             return
         return sorted(fun())
 
+    def get_command_metadata(self):
+        metadata = []
+        for command in self.get_commands():
+            method_name = f"cmd_{command[1:]}".replace("-", "_")
+            method = getattr(self, method_name, None)
+            description = ""
+            if method and method.__doc__:
+                description = method.__doc__.strip().splitlines()[0]
+            metadata.append((command, description))
+        return sorted(metadata)
+
+    def get_command_description(self, cmd):
+        descriptions = dict(self.get_command_metadata())
+        return descriptions.get(cmd, "")
+
     def get_commands(self):
         commands = []
         for attr in dir(self):
@@ -551,16 +566,28 @@ class Commands:
             return
 
         # ── /model <name> ────────────────────────────────────────────────────
+        current_model = self.coder.main_model
         try:
-            new_model = models.Model(model_name)
+            new_model = models.Model(
+                model_name,
+                weak_model=current_model.weak_model.name,
+                editor_model=current_model.editor_model.name,
+                editor_edit_format=current_model.editor_edit_format,
+            )
         except Exception as err:
             self.io.tool_error(f"Unknown model '{model_name}': {err}")
             self.io.tool_output("Run /model list to see all available aliases.")
             return
 
         self.io.tool_output(f"Switching to: {new_model.name}")
+        if self.coder.edit_format != current_model.edit_format:
+            edit_format = self.coder.edit_format
+        else:
+            edit_format = new_model.edit_format
+        models.sanity_check_models(self.io, new_model)
         raise SwitchCoder(
             main_model=new_model,
+            edit_format=edit_format,
         )
 
     def cmd_export(self, args):
@@ -1769,10 +1796,6 @@ class Commands:
     def cmd_reasoning_effort(self, args):
         "Set the reasoning effort level (values: number or low/medium/high depending on model)"
         model = self.coder.main_model
-
-        if "reasoning_effort" not in getattr(model, "accepts_settings", []):
-            self.io.tool_error(f"Model {model.name} does not support reasoning_effort setting.")
-            return
 
         if not args.strip():
             # Display current value if no args are provided

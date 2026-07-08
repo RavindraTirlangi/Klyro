@@ -45,19 +45,11 @@ def run_cmd_subprocess(command, verbose=False, cwd=None, encoding=sys.stdout.enc
 
     try:
         shell = os.environ.get("SHELL", "/bin/sh")
-        parent_process = None
-
-        # Determine the appropriate shell
-        if platform.system() == "Windows":
-            parent_process = get_windows_parent_process_name()
-            if parent_process == "powershell.exe":
-                command = f"powershell -Command {command}"
-
         if verbose:
             print("Running command:", command)
             print("SHELL:", shell)
             if platform.system() == "Windows":
-                print("Parent process:", parent_process)
+                print("Parent process:", get_windows_parent_process_name())
 
         process = subprocess.Popen(
             command,

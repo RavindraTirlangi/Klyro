@@ -2,6 +2,25 @@
 
 ---
 
+### v1.0.4 - 2026-07-08
+
+#### New Features
+- **Antigravity-style slash command palette:** Slash command completions now show command names with short descriptions sourced from each command's docstring.
+- **Experimental TUI mode:** Added opt-in `--tui` support with a header panel, transcript buffer, file summary, framed prompt surface, and model/status footer.
+
+#### UI Improvements
+- **Slash command hints:** The prompt footer now switches to command palette hints while typing `/`, showing navigation, selection, completion, and close controls.
+- **Reusable command metadata:** Added a command metadata helper so the classic prompt and TUI can share the same slash command names and descriptions.
+
+#### Reliability & Bug Fixes
+- **Model switching state:** `/model` now preserves the current weak/editor model configuration and explicit edit format when switching main models.
+- **DeepSeek reasoning cleanup:** DeepSeek R1/reasoner model settings now strip `<think>` reasoning content correctly.
+- **Repo map filtering:** Repo maps now ignore Python bytecode and `__pycache__` files.
+- **Windows command execution:** Fixed PowerShell command wrapping so simple commands like `echo Hello, World!` preserve their output.
+- **Optional dependency resolution:** Restored Python-version-specific NumPy, SciPy, and scikit-learn constraints across optional extras.
+
+---
+
 ### v1.0.3 — 2026-07-07
 
 #### New Features

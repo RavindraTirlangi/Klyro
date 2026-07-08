@@ -62,7 +62,8 @@ narwhals==2.18.0
     # via
     #   -c requirements/common-constraints.txt
     #   altair
-numpy==2.4.3
+numpy<2 ; python_version < "3.11"
+numpy>=2.3,<2.5 ; python_version >= "3.11"
     # via
     #   -c requirements/common-constraints.txt
     #   pandas
