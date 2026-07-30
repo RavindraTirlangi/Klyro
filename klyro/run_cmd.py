@@ -2,6 +2,7 @@ import os
 import platform
 import subprocess
 import sys
+import shlex
 from io import BytesIO
 
 import pexpect
@@ -51,12 +52,13 @@ def run_cmd_subprocess(command, verbose=False, cwd=None, encoding=sys.stdout.enc
             if platform.system() == "Windows":
                 print("Parent process:", get_windows_parent_process_name())
 
+        command_arg = command if isinstance(command, str) else " ".join(command)
         process = subprocess.Popen(
-            command,
+            command_arg,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            shell=True,
+            shell=True,  # nosec B602 B604
             encoding=encoding,
             errors="replace",
             bufsize=0,  # Set bufsize to 0 for unbuffered output

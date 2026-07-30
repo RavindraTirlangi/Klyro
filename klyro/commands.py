@@ -4,6 +4,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import shlex
 from collections import OrderedDict
 from os.path import expanduser
 from pathlib import Path
@@ -86,27 +87,12 @@ class Commands:
 
     def cmd_editor_model(self, args):
         "Switch the Editor Model to a new LLM"
-
-        model_name = args.strip()
-        model = models.Model(
-            self.coder.main_model.name,
-            editor_model=model_name,
-            weak_model=self.coder.main_model.weak_model.name,
-        )
-        models.sanity_check_models(self.io, model)
-        raise SwitchCoder(main_model=model)
+        return self.cmd_model(f"editor {args}")
 
     def cmd_weak_model(self, args):
         "Switch the Weak Model to a new LLM"
+        return self.cmd_model(f"weak {args}")
 
-        model_name = args.strip()
-        model = models.Model(
-            self.coder.main_model.name,
-            editor_model=self.coder.main_model.editor_model.name,
-            weak_model=model_name,
-        )
-        models.sanity_check_models(self.io, model)
-        raise SwitchCoder(main_model=model)
 
     def cmd_chat_mode(self, args):
         "Switch to a new chat mode"
@@ -181,13 +167,8 @@ class Commands:
 
     def cmd_models(self, args):
         "Search the list of available models"
+        return self.cmd_model(f"search {args}")
 
-        args = args.strip()
-
-        if args:
-            models.print_matching_models(self.io, args)
-        else:
-            self.io.tool_output("Please provide a partial model name to search for.")
 
     def cmd_web(self, args, return_content=False):
         "Scrape a webpage, convert to markdown and send in a message"
@@ -263,14 +244,23 @@ class Commands:
 
     def get_commands(self):
         commands = []
+        hidden_commands = {
+            "/editor-model", "/weak-model", "/chat-mode", "/editor", "/copy", 
+            "/copy-context", "/map", "/map-refresh", "/load", "/save", 
+            "/multiline-mode", "/report", "/stats", "/ok", "/context", 
+            "/git", "/voice", "/think-tokens", "/reasoning-effort", "/models"
+        }
         for attr in dir(self):
             if not attr.startswith("cmd_"):
                 continue
             cmd = attr[4:]
             cmd = cmd.replace("_", "-")
-            commands.append("/" + cmd)
+            slash_cmd = "/" + cmd
+            if slash_cmd not in hidden_commands:
+                commands.append(slash_cmd)
 
         return commands
+
 
     def do_run(self, cmd_name, args):
         cmd_name = cmd_name.replace("-", "_")
@@ -460,21 +450,87 @@ class Commands:
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
 
     def cmd_model(self, args):
-        "Switch to a different LLM model, or type /model list to see all available models"
+        "Switch to a different LLM model, or configure/search models"
 
-        model_name = args.strip()
+        args = args.strip()
+        parts = args.split()
+        subcommand = parts[0].lower() if parts else ""
+
+        # ── /model search <query> ────────────────────────────────────────────
+        if subcommand == "search":
+            query = " ".join(parts[1:])
+            if query:
+                models.print_matching_models(self.io, query)
+            else:
+                self.io.tool_output("Please provide a partial model name to search for (e.g. /model search llama).")
+            return
+
+        # ── /model editor <name> ─────────────────────────────────────────────
+        if subcommand == "editor":
+            if len(parts) < 2:
+                self.io.tool_output("Please specify the model name: /model editor <model-name>")
+                return
+            model_name = parts[1]
+            current_model = self.coder.main_model
+            model = models.Model(
+                current_model.name,
+                editor_model=model_name,
+                weak_model=current_model.weak_model.name if current_model.weak_model else None,
+            )
+            models.sanity_check_models(self.io, model)
+            raise SwitchCoder(main_model=model)
+
+        # ── /model weak <name> ───────────────────────────────────────────────
+        if subcommand == "weak":
+            if len(parts) < 2:
+                self.io.tool_output("Please specify the model name: /model weak <model-name>")
+                return
+            model_name = parts[1]
+            current_model = self.coder.main_model
+            model = models.Model(
+                current_model.name,
+                weak_model=model_name,
+                editor_model=current_model.editor_model.name if current_model.editor_model else None,
+            )
+            models.sanity_check_models(self.io, model)
+            raise SwitchCoder(main_model=model)
+
+        model_name = args
+
 
         # ── /model list ──────────────────────────────────────────────────────
         if model_name.lower() == "list":
-            providers = [
-                ("Anthropic Claude", [
+            import requests
+
+            # Check Ollama status and get pulled models
+            ollama_entries = []
+            ollama_active = False
+            try:
+                ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
+                response = requests.get(f"{ollama_host}/api/tags", timeout=0.5)
+                if response.status_code == 200:
+                    data = response.json()
+                    models_data = data.get("models", [])
+                    for m in models_data:
+                        name = m.get("name")
+                        if name:
+                            alias = name
+                            if alias.endswith(":latest"):
+                                alias = alias[:-7]
+                            ollama_entries.append((alias, f"ollama/{name}"))
+                    ollama_active = len(ollama_entries) > 0
+            except Exception:
+                pass
+
+            checks = [
+                ("Anthropic Claude", os.environ.get("ANTHROPIC_API_KEY"), [
                     ("claude / sonnet", "claude-sonnet-4-6  ← latest Sonnet"),
                     ("opus",            "claude-opus-4-7    ← most capable"),
                     ("haiku",           "claude-haiku-4-5   ← fastest/cheapest"),
                     ("claude3.7",       "claude-3-7-sonnet-20250219"),
                     ("claude3-opus",    "claude-3-opus-20240229"),
                 ]),
-                ("OpenAI GPT", [
+                ("OpenAI GPT", os.environ.get("OPENAI_API_KEY"), [
                     ("4o",       "gpt-4o              ← recommended"),
                     ("4o-mini",  "gpt-4o-mini         ← cheapest OpenAI"),
                     ("o1",       "o1                  ← reasoning"),
@@ -482,51 +538,41 @@ class Commands:
                     ("o3-mini",  "o3-mini"),
                     ("gpt5",     "gpt-5.5"),
                 ]),
-                ("Google Gemini", [
+                ("Google Gemini", os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"), [
                     ("gemini / gemini-pro",  "gemini-2.5-pro     ← recommended"),
                     ("flash",               "gemini-2.5-flash   ← fast"),
                     ("flash-lite",          "gemini-2.5-flash-lite"),
                     ("gemini-1.5-pro",      "gemini-1.5-pro"),
                     ("gemini-1.5-flash",    "gemini-1.5-flash"),
                 ]),
-                ("DeepSeek", [
+                ("DeepSeek", os.environ.get("DEEPSEEK_API_KEY"), [
                     ("deepseek / deepseek-v3", "deepseek-chat"),
                     ("r1 / deepseek-r1",       "deepseek-reasoner  ← best reasoning"),
                     ("r1-lite",                "deepseek-r1-0528 (free via OpenRouter)"),
                 ]),
-                ("Mistral", [
+                ("Mistral", os.environ.get("MISTRAL_API_KEY"), [
                     ("mistral / mistral-large", "mistral-large-latest"),
                     ("mistral-small",            "mistral-small-latest"),
                     ("codestral",               "codestral-latest"),
                     ("pixtral",                 "pixtral-large-latest"),
                 ]),
-                ("Meta Llama (local via Ollama)", [
-                    ("llama / llama3.2",  "ollama/llama3.2"),
-                    ("llama3.3",          "ollama/llama3.3"),
-                    ("llama4",            "ollama/llama4"),
-                    ("codellama",         "ollama/codellama"),
-                    ("qwen / qwen2.5",    "ollama/qwen2.5-coder"),
-                    ("phi4",              "ollama/phi4"),
-                    ("gemma3",            "ollama/gemma3"),
-                    ("devstral",          "ollama/devstral"),
-                    ("deepseek-ollama",   "ollama/deepseek-r1"),
-                ]),
-                ("xAI Grok", [
+                ("Meta Llama (local via Ollama)", ollama_active, ollama_entries),
+                ("xAI Grok", os.environ.get("XAI_API_KEY"), [
                     ("grok / grok3",  "xai/grok-3-beta"),
                     ("grok3-mini",    "xai/grok-3-mini-beta"),
                     ("grok2",         "xai/grok-2-latest"),
                 ]),
-                ("Groq (ultra-fast)", [
+                ("Groq (ultra-fast)", os.environ.get("GROQ_API_KEY"), [
                     ("groq-llama / groq-llama3", "groq/llama-3.3-70b-versatile"),
                     ("groq-mixtral",              "groq/mixtral-8x7b-32768"),
                     ("groq-gemma",                "groq/gemma2-9b-it"),
                 ]),
-                ("Cohere", [
+                ("Cohere", os.environ.get("COHERE_API_KEY"), [
                     ("command / command-r-plus", "cohere/command-r-plus"),
                     ("command-r",               "cohere/command-r"),
                     ("command-a",               "cohere/command-a-03-2025"),
                 ]),
-                ("OpenRouter (free tier)", [
+                ("OpenRouter (free tier)", os.environ.get("OPENROUTER_API_KEY"), [
                     ("llama-free",     "meta-llama/llama-3.1-8b-instruct:free"),
                     ("gemma-free",     "google/gemma-3-27b-it:free"),
                     ("deepseek-free",  "deepseek/deepseek-r1-0528:free"),
@@ -534,36 +580,53 @@ class Commands:
                     ("quasar",         "openrouter/quasar-alpha"),
                     ("optimus",        "openrouter/optimus-alpha"),
                 ]),
-                ("AWS Bedrock", [
+                ("AWS Bedrock", os.environ.get("AWS_ACCESS_KEY_ID") or os.environ.get("AWS_PROFILE"), [
                     ("bedrock-claude", "anthropic.claude-3-5-sonnet-20241022-v2:0"),
                     ("bedrock-llama",  "meta.llama3-70b-instruct-v1:0"),
                     ("bedrock-titan",  "amazon.titan-text-express-v1"),
                 ]),
-                ("Azure OpenAI", [
+                ("Azure OpenAI", os.environ.get("AZURE_OPENAI_API_KEY"), [
                     ("azure-gpt4o", "azure/gpt-4o"),
                     ("azure-gpt4",  "azure/gpt-4"),
                 ]),
             ]
+
+            providers = []
+            for name, is_active, entries in checks:
+                if is_active:
+                    providers.append((name, entries))
+
+            # Fallback: if no keys/services are active, show all standard templates
+            if not providers:
+                providers = [
+                    (name, entries) for name, _, entries in checks if entries
+                ]
+
             self.io.tool_output(f"\nCurrent model: {self.coder.main_model.name}\n")
-            self.io.tool_output("Available models  (use: /model <alias>)\n")
+            self.io.tool_output("Available models (use: /model <alias>):\n")
             for provider, entries in providers:
                 self.io.tool_output(f"  ── {provider} ──")
                 for alias, full in entries:
-                    self.io.tool_output(f"    /model {alias:<28}  →  {full}")
+                    self.io.tool_output(f"    {alias:<30}  →  {full}")
                 self.io.tool_output("")
             self.io.tool_output("Or use any full model string, e.g.:")
             self.io.tool_output("  /model openrouter/google/gemini-pro-1.5")
             self.io.tool_output("  /model ollama/phi4")
             return
 
+
         # ── /model (no arg) ──────────────────────────────────────────────────
         if not model_name:
             self.io.tool_output(f"Current model: {self.coder.main_model.name}")
             self.io.tool_output("")
             self.io.tool_output("  /model list                   → show all providers & aliases")
+            self.io.tool_output("  /model search <query>         → search matching model names")
+            self.io.tool_output("  /model editor <name>          → switch the editor model")
+            self.io.tool_output("  /model weak <name>            → switch the weak model")
             self.io.tool_output("  /model <alias>                → switch model (e.g. /model flash)")
             self.io.tool_output("  /model <full-name>            → switch by full name (e.g. /model ollama/llama3.2)")
             return
+
 
         # ── /model <name> ────────────────────────────────────────────────────
         current_model = self.coder.main_model
@@ -1142,16 +1205,16 @@ class Commands:
         "Run a git command (output excluded from chat)"
         combined_output = None
         try:
-            args = "git " + args
+            args_list = ["git"] + shlex.split(args)
             env = dict(subprocess.os.environ)
             env["GIT_EDITOR"] = "true"
             result = subprocess.run(
-                args,
+                args_list,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
                 env=env,
-                shell=True,
+                shell=False,
                 encoding=self.io.encoding,
                 errors="replace",
             )
@@ -1508,6 +1571,100 @@ class Commands:
 
         except Exception as e:
             self.io.tool_error(f"Error processing clipboard content: {e}")
+
+    def cmd_image(self, args):
+        """Add an image from a local file path or the clipboard to the chat and immediately analyze its details.\
+        Usage: /image [path_to_image] [prompt] (defaults to describing the image)"""
+        args = args.strip()
+        image_path = None
+        prompt = "Describe the details of this image."
+
+        # Parse arguments to see if a file path is provided
+        if args:
+            import re
+            quoted_match = re.match(r'^([\'"])(.*?)\1\s*(.*)$', args)
+            if quoted_match:
+                potential_path_str = quoted_match.group(2)
+                remaining_prompt = quoted_match.group(3)
+                potential_path = Path(potential_path_str)
+                expanded_path = Path(os.path.expanduser(potential_path_str))
+                if potential_path.is_file() or expanded_path.is_file():
+                    image_path = str(expanded_path.resolve())
+                    if remaining_prompt:
+                        prompt = remaining_prompt
+            else:
+                parts = args.split(maxsplit=1)
+                if parts:
+                    first_part = parts[0]
+                    potential_path = Path(first_part)
+                    expanded_path = Path(os.path.expanduser(first_part))
+                    if potential_path.is_file() or expanded_path.is_file():
+                        image_path = str(expanded_path.resolve())
+                        if len(parts) > 1:
+                            prompt = parts[1]
+                    else:
+                        prompt = args
+
+
+        # If no local image path was found, grab from clipboard
+        if not image_path:
+            try:
+                image = ImageGrab.grabclipboard()
+                if isinstance(image, Image.Image):
+                    # Save clipboard image to a temp file
+                    temp_dir = tempfile.mkdtemp()
+                    temp_file_path = os.path.join(temp_dir, "clipboard_image.png")
+                    image.save(temp_file_path, "PNG")
+                    image_path = str(Path(temp_file_path).resolve())
+                elif isinstance(image, list) and len(image) > 0 and isinstance(image[0], str):
+                    # On Windows, copying an image file in File Explorer returns a list of paths
+                    potential_file = image[0]
+                    if is_image_file(potential_file):
+                        image_path = str(Path(potential_file).resolve())
+                    else:
+                        self.io.tool_error(f"The file in your clipboard ({os.path.basename(potential_file)}) is not a recognized image format.")
+                        return
+                else:
+                    self.io.tool_error("No image found in clipboard, and no valid local image file path provided.")
+                    return
+            except Exception as e:
+                self.io.tool_error(f"Error grabbing image from clipboard: {e}")
+                return
+
+        # Add image path to the chat
+        if image_path:
+            if not is_image_file(image_path):
+                self.io.tool_error(f"The file {image_path} is not recognized as a valid image file.")
+                return
+
+            # Check if model supports vision
+            supports_vision = self.coder.main_model.info.get("supports_vision")
+            if not supports_vision:
+                self.io.tool_warning(
+                    f"Warning: The current model '{self.coder.main_model.name}' does not list vision support. "
+                    "This request might fail."
+                )
+
+            # Check if file with same name already exists in chat
+            existing_file = next(
+                (f for f in self.coder.abs_fnames if Path(f).name == Path(image_path).name), None
+            )
+            if existing_file:
+                self.coder.abs_fnames.remove(existing_file)
+                self.io.tool_output(f"Replaced existing image in the chat: {existing_file}")
+
+            self.coder.abs_fnames.add(image_path)
+            fname = self.coder.get_rel_fname(image_path)
+            if is_image_file(fname):
+                self.io.tool_action("Image", os.path.basename(fname))
+            else:
+                self.io.tool_action("Read", fname)
+            self.coder.check_added_files()
+
+            # Immediately run the coder with the prompt
+            self.io.tool_output(f"Analyzing image details: '{prompt}'...")
+            self.coder.run(with_message=prompt)
+
 
     def cmd_read_only(self, args):
         "Add files to the chat that are for reference only, or turn added files to read-only"

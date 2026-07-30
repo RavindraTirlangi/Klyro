@@ -36,6 +36,10 @@ class LazyLiteLLM:
         self._lazy_module.drop_params = True
         self._lazy_module._logging._disable_debugging()
 
+    def __dir__(self):
+        self._load_litellm()
+        return dir(self._lazy_module)
+
 
 litellm = LazyLiteLLM()
 

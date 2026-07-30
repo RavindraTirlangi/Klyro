@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from klyro.dump import dump  # noqa: F401
+from klyro.llm import litellm
 
 
 @dataclass
@@ -65,8 +66,6 @@ class LiteLLMExceptions:
         self._load()
 
     def _load(self, strict=False):
-        import litellm
-
         for var in dir(litellm):
             # Filter by BaseException because instances of non-exception classes cannot be caught.
             # `litellm.ErrorEventError` is an example of a regular class which just happens to end
@@ -84,8 +83,6 @@ class LiteLLMExceptions:
 
     def get_ex_info(self, ex):
         """Return the ExInfo for a given exception instance"""
-        import litellm
-
         if ex.__class__ is litellm.APIConnectionError:
             if "boto3" in str(ex):
                 return ExInfo("APIConnectionError", False, "You need to: pip install boto3")

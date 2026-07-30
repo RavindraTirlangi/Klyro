@@ -12,6 +12,7 @@ import os
 import platform
 import subprocess
 import tempfile
+import shlex
 
 from rich.console import Console
 
@@ -128,10 +129,10 @@ def pipe_editor(input_data="", suffix=None, editor=None):
     :rtype: str
     """
     filepath = write_temp_file(input_data, suffix)
-    command_str = discover_editor(editor)
-    command_str += " " + filepath
+    command_list = shlex.split(discover_editor(editor), posix=platform.system() != "Windows")
+    command_list.append(filepath)
 
-    subprocess.call(command_str, shell=True)
+    subprocess.call(command_list, shell=False)
     with open(filepath, "r") as f:
         output_data = f.read()
     try:

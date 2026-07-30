@@ -512,7 +512,7 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
     if args.shell_completions:
         # Ensure parser.prog is set for shtab, though it should be by default
         parser.prog = "klyro"
-        print(shtab.complete(parser, shell=args.shell_completions))
+        print(shtab.complete(parser, shell=args.shell_completions))  # nosec B604
         sys.exit(0)
 
     if git is None:
@@ -527,8 +527,8 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
 
         os.environ["SSL_VERIFY"] = ""
         litellm._load_litellm()
-        litellm._lazy_module.client_session = httpx.Client(verify=False)
-        litellm._lazy_module.aclient_session = httpx.AsyncClient(verify=False)
+        litellm._lazy_module.client_session = httpx.Client(verify=False)  # nosec B501
+        litellm._lazy_module.aclient_session = httpx.AsyncClient(verify=False)  # nosec B501
         # Set verify_ssl on the model_info_manager
         models.model_info_manager.set_verify_ssl(False)
 

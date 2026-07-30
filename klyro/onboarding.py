@@ -56,7 +56,7 @@ def try_to_select_default_model():
         import json
 
         req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
-        with urllib.request.urlopen(req, timeout=1) as resp:
+        with urllib.request.urlopen(req, timeout=1) as resp:  # nosec B310
             if resp.status == 200:
                 data = json.loads(resp.read().decode("utf-8"))
                 models = data.get("models", [])

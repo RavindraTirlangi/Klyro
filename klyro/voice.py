@@ -116,7 +116,8 @@ class Voice:
     def raw_record_and_transcribe(self, history, language):
         self.q = queue.Queue()
 
-        temp_wav = tempfile.mktemp(suffix=".wav")
+        fd, temp_wav = tempfile.mkstemp(suffix=".wav")
+        os.close(fd)
 
         try:
             sample_rate = int(self.sd.query_devices(self.device_id, "input")["default_samplerate"])
@@ -152,7 +153,8 @@ class Voice:
         filename = temp_wav
         if use_audio_format != "wav":
             try:
-                new_filename = tempfile.mktemp(suffix=f".{use_audio_format}")
+                fd, new_filename = tempfile.mkstemp(suffix=f".{use_audio_format}")
+                os.close(fd)
                 audio = AudioSegment.from_wav(temp_wav)
                 audio.export(new_filename, format=use_audio_format)
                 os.remove(temp_wav)

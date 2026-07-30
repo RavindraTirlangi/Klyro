@@ -1050,7 +1050,7 @@ class Model(ModelSettings):
             }
 
             url = "https://api.github.com/copilot_internal/v2/token"
-            res = requests.get(url, headers=headers)
+            res = requests.get(url, headers=headers, timeout=10)
             if res.status_code != 200:
                 safe_headers = {k: v for k, v in headers.items() if k != "Authorization"}
                 token_preview = github_token[:5] + "..." if len(github_token) >= 5 else github_token
@@ -1103,7 +1103,7 @@ class Model(ModelSettings):
 
         # dump(kwargs)
 
-        hash_object = hashlib.sha1(key)
+        hash_object = hashlib.sha1(key, usedforsecurity=False)
         if "timeout" not in kwargs:
             kwargs["timeout"] = request_timeout
         if self.verbose:

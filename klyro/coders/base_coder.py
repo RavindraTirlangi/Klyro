@@ -204,9 +204,38 @@ class Coder:
         new_coder = Coder.create(from_coder=self, **kwargs)
         return new_coder
 
+    def _get_provider_user(self):
+        """Return the logged-in provider user string for the header info panel.
+
+        Checks known provider API keys and returns a human-readable identity
+        string, e.g. 'via OpenRouter'. Avoids reading git config user.email
+        to protect user privacy in public terminal shares.
+        """
+        # Check active provider env keys
+        if os.environ.get("OPENROUTER_API_KEY"):
+            return "via OpenRouter"
+        if os.environ.get("ANTHROPIC_API_KEY"):
+            return "via Anthropic"
+        if os.environ.get("OPENAI_API_KEY"):
+            return "via OpenAI"
+        if os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"):
+            return "via Google Gemini"
+
+        # Check if current model is local ollama
+        if self.main_model and self.main_model.name.startswith("ollama/"):
+            return "via Ollama"
+
+        return None
+
+
     def get_announcements(self):
         lines = []
         lines.append(f"Klyro v{__version__}")
+
+        # Provider / user identity
+        provider_user = self._get_provider_user()
+        if provider_user:
+            lines.append(provider_user)
 
         # Model
         main_model = self.main_model
@@ -246,6 +275,9 @@ class Coder:
         if weak_model is not main_model:
             output = f"Weak model: {weak_model.name}"
             lines.append(output)
+
+        # Current working directory
+        lines.append(os.getcwd())
 
         # Repo
         if self.repo:
@@ -403,6 +435,7 @@ class Coder:
             self.done_messages = []
 
         self.io = io
+        self.io.coder = self
 
         self.shell_commands = []
 
@@ -566,10 +599,24 @@ class Coder:
             logo_text = logo_str  # fallback
 
         announcements = self.get_announcements()
+
+        # Build a styled info block matching the Antigravity layout:
+        # Line 0: version (bold white)
+        # Line 1: provider/user identity (dim cyan, if present)
+        # Line 2: model (normal)
+        # Line 3: cwd (dim)
+        # Remaining lines: standard announcements (dim)
         info_lines = []
         for i, line in enumerate(announcements):
             if i == 0:
+                # Version line — bold white
                 info_lines.append(f"[bold white]{line}[/bold white]")
+            elif i == 1 and not line.startswith(("Main model", "Model", "Git", "Repo", "Added", "Warn", "Restored", "Multiline")):
+                # Provider / user identity line — dim cyan
+                info_lines.append(f"[#38bdf8]{line}[/#38bdf8]")
+            elif line.startswith(os.getcwd()) or (len(line) > 2 and line[1] == ":"):
+                # CWD line — dim
+                info_lines.append(f"[#64748b]{line}[/#64748b]")
             else:
                 info_lines.append(line)
         info_str = "\n".join(info_lines)
@@ -585,6 +632,8 @@ class Coder:
             table.add_column("Info", vertical="middle")
             table.add_row(logo_text, info_text)
             self.io.console.print(table)
+            # Print a horizontal rule beneath the header
+            self.io.console.rule(style="#1e2a3a")
         except Exception:
             # Fallback if rich console is not available or crashes
             bold = True
@@ -1921,7 +1970,7 @@ class Coder:
             function_call=str(self.partial_response_function_call),
             content=self.partial_response_content,
         )
-        resp_hash = hashlib.sha1(json.dumps(resp_hash, sort_keys=True).encode())
+        resp_hash = hashlib.sha1(json.dumps(resp_hash, sort_keys=True).encode(), usedforsecurity=False)
         self.chat_completion_response_hashes.append(resp_hash.hexdigest())
 
         if show_func_err and show_content_err:

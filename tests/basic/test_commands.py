@@ -7,6 +7,7 @@ import tempfile
 from io import StringIO
 from pathlib import Path
 from unittest import TestCase, mock
+from unittest.mock import patch
 
 import git
 import pyperclip
@@ -47,6 +48,47 @@ class TestCommands(TestCase):
         self.assertTrue(os.path.exists("foo.txt"))
         self.assertTrue(os.path.exists("bar.txt"))
 
+    @patch("klyro.commands.ImageGrab.grabclipboard")
+    def test_cmd_image(self, mock_grab):
+        from unittest.mock import MagicMock
+        from PIL import Image
+        
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        from klyro.coders import Coder
+        coder = Coder.create(self.GPT35, None, io)
+        coder.run = MagicMock()
+        commands = Commands(io, coder)
+
+        # 1. Test local image file
+        local_img = "test_image.png"
+        with open(local_img, "wb") as f:
+            f.write(b"fake image content")
+        
+        try:
+            commands.cmd_image(f"{local_img} What is this?")
+            self.assertIn(str(Path(local_img).resolve()), coder.abs_fnames)
+            coder.run.assert_called_once_with(with_message="What is this?")
+        finally:
+            if os.path.exists(local_img):
+                os.remove(local_img)
+
+        # 2. Test clipboard image fallback
+        coder.run.reset_mock()
+        coder.abs_fnames.clear()
+        
+        # Create a mock PIL image
+        img = Image.new("RGB", (10, 10))
+        mock_grab.return_value = img
+
+        commands.cmd_image("Describe this clipboard image")
+        
+        # Should have saved clipboard image and added to abs_fnames
+        added_file = next(iter(coder.abs_fnames))
+        self.assertTrue(added_file.endswith("clipboard_image.png"))
+        self.assertTrue(os.path.exists(added_file))
+        coder.run.assert_called_once_with(with_message="Describe this clipboard image")
+
+
     def test_command_metadata_uses_docstrings(self):
         io = InputOutput(pretty=False, fancy_input=False, yes=True)
         coder = Coder.create(self.GPT35, None, io)
@@ -61,8 +103,9 @@ class TestCommands(TestCase):
         )
         self.assertEqual(
             metadata["/model"],
-            "Switch to a different LLM model, or type /model list to see all available models",
+            "Switch to a different LLM model, or configure/search models",
         )
+
 
     def test_cmd_copy(self):
         # Initialize InputOutput and Coder instances

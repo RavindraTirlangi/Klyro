@@ -571,16 +571,28 @@ class InputOutput:
         # Ring the bell if needed
         self.ring_bell()
 
+        # Show tracked files as Antigravity-style action bullets: • Read(file)
         rel_fnames = list(rel_fnames)
-        show = ""
+        rel_read_only_fnames_list = [
+            get_rel_fname(f, root) for f in (abs_read_only_fnames or [])
+        ]
         if rel_fnames:
-            rel_read_only_fnames = [
-                get_rel_fname(fname, root) for fname in (abs_read_only_fnames or [])
-            ]
-            show = self.format_files_for_input(rel_fnames, rel_read_only_fnames)
+            editable = [f for f in sorted(rel_fnames) if f not in rel_read_only_fnames_list]
+            read_only = sorted(rel_read_only_fnames_list)
+            for fname in read_only:
+                if is_image_file(fname):
+                    self.tool_action("Image", os.path.basename(fname) + " (read-only)")
+                else:
+                    self.tool_action("Read", fname + " (read-only)")
+            for fname in editable:
+                if is_image_file(fname):
+                    self.tool_action("Image", os.path.basename(fname))
+                else:
+                    self.tool_action("Read", fname)
 
-        # Print the files list above the prompt if it exists (like Claude Code)
-        if show:
+
+        show = self.format_files_for_input(rel_fnames, rel_read_only_fnames_list)
+        if show.strip():
             self.console.print(show.rstrip())
 
         # Construct styled prompt prefix using FormattedText
@@ -660,19 +672,31 @@ class InputOutput:
         @kb.add("enter", eager=True, filter=~is_searching)
         def _(event):
             "Handle Enter key press"
-            buffer_text = event.current_buffer.text
+            b = event.current_buffer
+            buffer_text = b.text
             # If the user typed a slash command on the first line, Enter submits immediately
             is_slash_command = buffer_text.startswith("/") and "\n" not in buffer_text
+
+            if is_slash_command and b.complete_state:
+                if not b.complete_state.current_completion:
+                    b.complete_state.go_to_index(0)
+                
+                old_text = b.text
+                b.apply_completion(b.complete_state.current_completion)
+                
+                if old_text == b.text:
+                    b.validate_and_handle()
+                return
 
             if self.multiline_mode and not is_slash_command and not (
                 self.editingmode == EditingMode.VI
                 and event.app.vi_state.input_mode == InputMode.NAVIGATION
             ):
                 # In multiline mode, Enter adds a newline unless it is a slash command
-                event.current_buffer.insert_text("\n")
+                b.insert_text("\n")
             else:
                 # In normal mode, or for slash commands, Enter submits
-                event.current_buffer.validate_and_handle()
+                b.validate_and_handle()
 
         @kb.add("escape", "enter", eager=True, filter=~is_searching)  # This is Alt+Enter
         def _(event):
@@ -708,6 +732,16 @@ class InputOutput:
                     if self.pretty and model_name:
                         rprompt = FormattedText([("class:toolbar-model", model_name)])
 
+                    def _bottom_toolbar():
+                        """Persistent bottom bar: shortcuts hint on left, model on right."""
+                        _model = model_name or ""
+                        return FormattedText([
+                            ("class:toolbar-key", "?"),
+                            ("class:toolbar-hint", " for shortcuts"),
+                            ("class:toolbar-separator", "   │   "),
+                            ("class:toolbar-model", _model),
+                        ])
+
                     line = self.prompt_session.prompt(
                         show,
                         default=default,
@@ -719,6 +753,7 @@ class InputOutput:
                         complete_while_typing=True,
                         prompt_continuation=get_continuation,
                         rprompt=rprompt,
+                        bottom_toolbar=_bottom_toolbar if self.pretty and model_name else None,
                         show_frame=getattr(self, "tui_mode", False),
                     )
                 else:
@@ -1055,6 +1090,26 @@ class InputOutput:
     def tool_warning(self, message="", strip=True):
         self._tool_message(message, strip, self.tool_warning_color)
 
+    def tool_action(self, verb: str, path: str = "") -> None:
+        """Emit an Antigravity-style action bullet: \u2022 Verb(path)
+
+        Used to surface tool calls (Read, ListDir, Write, etc.) in the terminal
+        with a distinctive cyan bullet, matching the Antigravity CLI aesthetic.
+        """
+        if not self.pretty:
+            msg = f"\u2022 {verb}({path})" if path else f"\u2022 {verb}"
+            self.console.print(msg)
+            return
+
+        from rich.text import Text
+        bullet = Text("\u2022 ", style="#38bdf8 bold")
+        verb_text = Text(verb, style="#38bdf8")
+        paren_open = Text("(", style="#64748b")
+        path_text = Text(path, style="#64748b")
+        paren_close = Text(")", style="#64748b")
+        line = bullet + verb_text + paren_open + path_text + paren_close
+        self.console.print(line)
+
     def tool_output(self, *messages, log_only=False, bold=False):
         if messages:
             hist = " ".join(messages)
@@ -1153,8 +1208,11 @@ class InputOutput:
         if self.bell_on_next_input and self.notifications:
             if self.notifications_command:
                 try:
+                    cmd = self.notifications_command
+                    if isinstance(cmd, str):
+                        cmd = shlex.split(cmd)
                     result = subprocess.run(
-                        self.notifications_command, shell=True, capture_output=True
+                        cmd, shell=False, capture_output=True
                     )
                     if result.returncode != 0 and result.stderr:
                         error_msg = result.stderr.decode("utf-8", errors="replace")
@@ -1202,13 +1260,19 @@ class InputOutput:
         if not self.pretty:
             read_only_files = []
             for full_path in sorted(rel_read_only_fnames or []):
-                read_only_files.append(f"{full_path} (read only)")
+                if is_image_file(full_path):
+                    read_only_files.append(f"🖼️ [Image] {os.path.basename(full_path)} (read only)")
+                else:
+                    read_only_files.append(f"{full_path} (read only)")
 
             editable_files = []
             for full_path in sorted(rel_fnames):
                 if full_path in rel_read_only_fnames:
                     continue
-                editable_files.append(f"{full_path}")
+                if is_image_file(full_path):
+                    editable_files.append(f"🖼️ [Image] {os.path.basename(full_path)}")
+                else:
+                    editable_files.append(f"{full_path}")
 
             return "\n".join(read_only_files + editable_files) + "\n"
 
@@ -1222,8 +1286,11 @@ class InputOutput:
             # Use shorter of abs/rel paths for readonly files
             ro_paths = []
             for rel_path in read_only_files:
-                abs_path = os.path.abspath(os.path.join(self.root, rel_path))
-                ro_paths.append(Text(abs_path if len(abs_path) < len(rel_path) else rel_path))
+                if is_image_file(rel_path):
+                    ro_paths.append(Text(f"🖼️ [Image] {os.path.basename(rel_path)}", style="italic green"))
+                else:
+                    abs_path = os.path.abspath(os.path.join(self.root, rel_path))
+                    ro_paths.append(Text(abs_path if len(abs_path) < len(rel_path) else rel_path))
 
             files_with_label = [Text("Readonly:")] + ro_paths
             read_only_output = StringIO()
@@ -1232,7 +1299,12 @@ class InputOutput:
             console.print(Columns(files_with_label))
 
         if editable_files:
-            text_editable_files = [Text(f) for f in editable_files]
+            text_editable_files = []
+            for f in editable_files:
+                if is_image_file(f):
+                    text_editable_files.append(Text(f"🖼️ [Image] {os.path.basename(f)}", style="green"))
+                else:
+                    text_editable_files.append(Text(f))
             files_with_label = text_editable_files
             if read_only_files:
                 files_with_label = [Text("Editable:")] + text_editable_files
@@ -1242,6 +1314,7 @@ class InputOutput:
 
                 if len(read_only_lines) > 1 or len(editable_lines) > 1:
                     console.print()
+
             console.print(Columns(files_with_label))
 
         return output.getvalue()

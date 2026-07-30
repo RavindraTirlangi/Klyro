@@ -75,7 +75,7 @@ def check_version(io, just_check=False, verbose=False):
     import requests
 
     try:
-        response = requests.get("https://pypi.org/pypi/klyro/json")
+        response = requests.get("https://pypi.org/pypi/klyro/json", timeout=10)
         data = response.json()
         latest_version = data["info"]["version"]
         current_version = klyro.__version__

@@ -935,7 +935,7 @@ def main():
                 sys.exit(1)
             parser = get_parser([], None)
             parser.prog = "klyro"  # Set the program name on the parser
-            print(shtab.complete(parser, shell=shell))
+            print(shtab.complete(parser, shell=shell))  # nosec B604
         else:
             print("Error: Please specify a shell for completion.", file=sys.stderr)
             print(f"Usage: python {sys.argv[0]} completion <shell_name>", file=sys.stderr)

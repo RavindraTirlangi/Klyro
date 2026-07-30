@@ -1105,7 +1105,9 @@ class TestMain(TestCase):
                 self.assertIn("invalid choice", stderr_output)
                 self.assertIn("not-a-real-format", stderr_output)
 
-    def test_default_model_selection(self):
+    @patch("urllib.request.urlopen")
+    def test_default_model_selection(self, mock_urlopen):
+        mock_urlopen.side_effect = Exception("Ollama offline")
         with GitTemporaryDirectory():
             # Test Anthropic API key
             os.environ["ANTHROPIC_API_KEY"] = "test-key"
@@ -1113,6 +1115,7 @@ class TestMain(TestCase):
                 ["--exit", "--yes"], input=DummyInput(), output=DummyOutput(), return_coder=True
             )
             self.assertIn("sonnet", coder.main_model.name.lower())
+
             del os.environ["ANTHROPIC_API_KEY"]
 
             # Test DeepSeek API key
@@ -1154,8 +1157,11 @@ class TestMain(TestCase):
                 self.assertEqual(result, 1)  # Expect failure since no model could be selected
                 mock_offer_oauth.assert_called_once()
 
-    def test_model_precedence(self):
+    @patch("urllib.request.urlopen")
+    def test_model_precedence(self, mock_urlopen):
+        mock_urlopen.side_effect = Exception("Ollama offline")
         with GitTemporaryDirectory():
+
             # Test that earlier API keys take precedence
             os.environ["ANTHROPIC_API_KEY"] = "test-key"
             os.environ["OPENAI_API_KEY"] = "test-key"
