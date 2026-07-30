@@ -2,6 +2,17 @@
 
 ---
 
+### v1.0.7 - 2026-07-30
+
+#### UI Improvements
+- **Autocomplete Enter behavior:** Pressing Enter while typing a slash command with the autocomplete menu open now safely applies the top suggestion instead of prematurely submitting an incomplete command.
+- **Image formatting:** Formatted the output of the `/image` command to cleanly display `🖼️ [Image] filename` instead of raw output logs.
+
+#### Bug Fixes
+- **Case-insensitive image extensions:** Fixed a bug where uppercase image extensions (e.g. `.PNG`) were not recognized correctly.
+
+---
+
 ### v1.0.6 - 2026-07-08
 
 #### UI — Textual TUI Upgrade

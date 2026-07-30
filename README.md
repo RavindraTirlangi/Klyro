@@ -14,7 +14,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/klyro?style=for-the-badge&color=0A0A0A&labelColor=0A0A0A&logo=pypi&logoColor=white)](https://pypi.org/project/klyro/)
 [![Python](https://img.shields.io/badge/Python-3.10+-0A0A0A?style=for-the-badge&logo=python&logoColor=white)](https://pypi.org/project/klyro/)
 [![License](https://img.shields.io/badge/Apache_2.0-0A0A0A?style=for-the-badge&logo=apache&logoColor=white)](LICENSE)
-[![Version](https://img.shields.io/badge/v1.0.6-brightgreen?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RavindraTirlangi/Klyro/releases/tag/v1.0.6)
+[![Version](https://img.shields.io/badge/v1.0.7-brightgreen?style=for-the-badge&logo=github&logoColor=white)](https://github.com/RavindraTirlangi/Klyro/releases/tag/v1.0.7)
 [![Changelog](https://img.shields.io/badge/Changelog-orange?style=for-the-badge&logo=readthedocs&logoColor=white)](CHANGELOG.md)
 
 <br/>
