@@ -6,6 +6,25 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.8] - 2026-07-31
+
+### Added
+- Provider-aware model discovery for OpenRouter, Ollama, and LiteLLM providers.
+- Model-list pagination, search, refresh, caching, and autocomplete.
+- Declarative slash-command registration and scheduled external URL checks.
+- Optional `voice` and `tui` dependency extras.
+
+### Changed
+- Removed built-in hardcoded model aliases in favor of provider discovery and user aliases.
+- Enabled Ubuntu, Windows, pre-commit, Docker, and gated PyPI release workflows.
+- Improved security, privacy, installation, and contributor documentation.
+
+### Fixed
+- Hardened shell execution, SSL client cleanup, environment isolation, and provider errors.
+- Added reliable wheel installation, CLI startup, and uninstall verification.
+
+---
+
 ## [1.0.7] - 2026-07-30
 
 ### UI Improvements

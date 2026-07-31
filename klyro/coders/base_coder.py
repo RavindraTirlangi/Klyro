@@ -227,7 +227,6 @@ class Coder:
 
         return None
 
-
     def get_announcements(self):
         lines = []
         lines.append(f"Klyro v{__version__}")
@@ -611,7 +610,9 @@ class Coder:
             if i == 0:
                 # Version line — bold white
                 info_lines.append(f"[bold white]{line}[/bold white]")
-            elif i == 1 and not line.startswith(("Main model", "Model", "Git", "Repo", "Added", "Warn", "Restored", "Multiline")):
+            elif i == 1 and not line.startswith(
+                ("Main model", "Model", "Git", "Repo", "Added", "Warn", "Restored", "Multiline")
+            ):
                 # Provider / user identity line — dim cyan
                 info_lines.append(f"[#38bdf8]{line}[/#38bdf8]")
             elif line.startswith(os.getcwd()) or (len(line) > 2 and line[1] == ":"):
@@ -1970,7 +1971,9 @@ class Coder:
             function_call=str(self.partial_response_function_call),
             content=self.partial_response_content,
         )
-        resp_hash = hashlib.sha1(json.dumps(resp_hash, sort_keys=True).encode(), usedforsecurity=False)
+        resp_hash = hashlib.sha1(
+            json.dumps(resp_hash, sort_keys=True).encode(), usedforsecurity=False
+        )
         self.chat_completion_response_hashes.append(resp_hash.hexdigest())
 
         if show_func_err and show_content_err:
@@ -2571,7 +2574,12 @@ class Coder:
             self.io.tool_output(f"Running {command}")
             # Add the command to input history
             self.io.add_to_input_history(f"/run {command.strip()}")
-            exit_status, output = run_cmd(command, error_print=self.io.tool_error, cwd=self.root)
+            exit_status, output = run_cmd(
+                command,
+                error_print=self.io.tool_error,
+                cwd=self.root,
+                use_shell=True,
+            )
             if output:
                 accumulated_output += f"Output from {command}\n{output}\n"
 

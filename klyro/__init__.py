@@ -1,20 +1,11 @@
-from packaging import version
-
-__version__ = "1.0.5"
-safe_version = __version__
-
 try:
     from klyro._version import __version__
-except Exception:
-    __version__ = safe_version + "+import"
-
-if type(__version__) is not str:
-    __version__ = safe_version + "+type"
-else:
+except ImportError:
     try:
-        if version.parse(__version__) < version.parse(safe_version):
-            __version__ = safe_version
-    except Exception:
-        __version__ = safe_version + "+parse"
+        from importlib.metadata import version
 
-__all__ = [__version__]
+        __version__ = version("klyro")
+    except ImportError:
+        __version__ = "0+unknown"
+
+__all__ = ["__version__"]

@@ -10,8 +10,24 @@ permissions:
   id-token: write
 
 jobs:
+  test:
+    name: Test release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install and test
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pytest tests/basic tests/help
+
   publish:
     name: Build & Publish
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +48,15 @@ jobs:
 
       - name: Check package
         run: twine check dist/*
+
+      - name: Smoke-test wheel install and uninstall
+        run: |
+          python -m venv /tmp/klyro-wheel-test
+          /tmp/klyro-wheel-test/bin/python -m pip install dist/*.whl
+          /tmp/klyro-wheel-test/bin/klyro --version
+          /tmp/klyro-wheel-test/bin/python -m klyro --version
+          /tmp/klyro-wheel-test/bin/python -m pip uninstall -y klyro
+          /tmp/klyro-wheel-test/bin/python -c "import importlib.util; assert importlib.util.find_spec('klyro') is None"
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

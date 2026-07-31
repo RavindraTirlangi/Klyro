@@ -1,11 +1,39 @@
 name: Windows Python Tests
 
 on:
-  workflow_dispatch:  # Only run manually
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: windows-tests-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build:
+  test:
     runs-on: windows-latest
-    if: false  # Disabled - enable when tests are ready for klyro
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
-      - run: echo "disabled"
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run core tests
+        env:
+          KLYRO_ANALYTICS: "false"
+        run: python -m pytest tests/basic tests/help
+      - name: Verify CLI
+        run: |
+          klyro --version
+          python -m klyro --version
+          klyro --help

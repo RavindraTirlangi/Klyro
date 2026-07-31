@@ -2,6 +2,24 @@
 
 ---
 
+### v1.0.8 - 2026-07-31
+
+#### Model and Command Improvements
+- Added provider-aware `/model` discovery, search, pagination, refresh, caching, and autocomplete.
+- OpenRouter now lists models permitted for the authenticated account; Ollama lists models installed locally.
+- Removed built-in hardcoded model aliases and introduced an explicit slash-command registry.
+
+#### Reliability and Packaging
+- Hardened shell execution, SSL client cleanup, environment loading, and provider error reporting.
+- Moved voice and TUI dependencies into optional extras.
+- Added isolated tests and wheel install/startup/uninstall release checks.
+
+#### Development and Release
+- Enabled Ubuntu and Windows test matrices, pre-commit checks, Docker validation, scheduled URL checks, and gated PyPI publishing.
+- Updated security, privacy, installation, release, and contributor documentation.
+
+---
+
 ### v1.0.7 - 2026-07-30
 
 #### UI Improvements

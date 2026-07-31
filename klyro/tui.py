@@ -206,16 +206,19 @@ class KlyroApp(App):
         def _write():
             if text.strip():
                 self.query_one("#chat-log", RichLog).write(Text(text, style=style))
+
         self.call_from_thread(_write)
 
     def post_markdown_threadsafe(self, markdown: str) -> None:
         def _write():
             self.query_one("#chat-log", RichLog).write(Markdown(markdown, code_theme="monokai"))
+
         self.call_from_thread(_write)
 
     def post_separator_threadsafe(self) -> None:
         def _write():
             self.query_one("#chat-log", RichLog).write(Text("─" * 60, style="#1e3a5f"))
+
         self.call_from_thread(_write)
 
     def set_thinking_threadsafe(self, active: bool) -> None:
@@ -225,12 +228,11 @@ class KlyroApp(App):
             inp.disabled = active
             if not active:
                 inp.focus()
+
         self.call_from_thread(_set)
 
     def set_tokens_threadsafe(self, sent: int, received: int) -> None:
-        self.call_from_thread(
-            lambda: setattr(self, "token_info", f"↑ {sent:,}  ↓ {received:,}")
-        )
+        self.call_from_thread(lambda: setattr(self, "token_info", f"↑ {sent:,}  ↓ {received:,}"))
 
     def set_model_threadsafe(self, name: str) -> None:
         self.call_from_thread(lambda: setattr(self, "model_name", name))
@@ -378,7 +380,8 @@ class TuiInputOutput(InputOutput):
         rel_fnames = list(rel_fnames)
         if rel_fnames:
             from klyro.io import get_rel_fname
-            rel_ro = [get_rel_fname(f, root) for f in (abs_read_only_fnames or [])]
+
+            rel_ro = [get_rel_fname(f, root) for f in abs_read_only_fnames or []]
             files_str = self.format_files_for_input(rel_fnames, rel_ro)
             if files_str.strip():
                 app.post_message_threadsafe(files_str.strip(), style="#64748b")

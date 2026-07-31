@@ -14,6 +14,9 @@ class DummyResponse:
     def json(self):
         return self._json_data
 
+    def raise_for_status(self):
+        return None
+
 
 def test_openrouter_get_model_info_from_cache(monkeypatch, tmp_path):
     """
@@ -71,3 +74,33 @@ def test_model_info_manager_uses_openrouter_manager(monkeypatch):
     info = mim.get_model_info("openrouter/fake/model")
 
     assert info == stub_info
+
+
+def test_openrouter_model_names_use_user_filtered_endpoint(monkeypatch, tmp_path):
+    payload = {
+        "data": [
+            {
+                "id": "deepseek/deepseek-r1:free",
+                "architecture": {"output_modalities": ["text"]},
+            },
+            {
+                "id": "openai/image-model",
+                "architecture": {"output_modalities": ["image"]},
+            },
+        ]
+    }
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return DummyResponse(payload)
+
+    monkeypatch.setattr("requests.get", fake_get)
+    monkeypatch.setattr(Path, "home", staticmethod(lambda: tmp_path))
+
+    manager = OpenRouterModelManager()
+    names = manager.get_model_names(api_key="secret")
+
+    assert names == ["openrouter/deepseek/deepseek-r1:free"]
+    assert calls[0][0].endswith("/api/v1/models/user")
+    assert calls[0][1]["headers"] == {"Authorization": "Bearer secret"}

@@ -10,9 +10,9 @@ This module provides functionality to:
 
 import os
 import platform
+import shlex
 import subprocess
 import tempfile
-import shlex
 
 from rich.console import Console
 

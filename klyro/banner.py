@@ -12,6 +12,7 @@ BANNER_ART = r"""
 [#808080]------------------------------------------------------[/#808080]
 """
 
+
 def print_banner(io, version):
     """Print the Klyro startup banner with version info."""
     logo = BANNER_ART.replace("{__version__}", version)
@@ -21,4 +22,3 @@ def print_banner(io, version):
             io.console.print(line)
         else:
             io.tool_output(line)
-

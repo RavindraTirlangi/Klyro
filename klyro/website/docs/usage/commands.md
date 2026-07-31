@@ -43,8 +43,7 @@ cog.out(get_help_md())
 | **/ls** | List all known files and indicate which are included in the chat session |
 | **/map** | Print out the current repository map |
 | **/map-refresh** | Force a refresh of the repository map |
-| **/model** | Switch the Main Model to a new LLM |
-| **/models** | Search the list of available models |
+| **/model** | List models from the current provider, or switch the main model |
 | **/multiline-mode** | Toggle multiline mode (swaps behavior of Enter and Meta+Enter) |
 | **/ok** | Alias for `/code Ok, please go ahead and make those changes.` (any args are appended) |
 | **/paste** | Paste image/text from the clipboard into the chat.        Optionally provide a name for the image. |
@@ -64,6 +63,10 @@ cog.out(get_help_md())
 | **/web** | Scrape a webpage, convert to markdown and send in a message |
 
 <!--[[[end]]]-->
+
+Use `/model search <text>` to filter the current provider's models,
+`/model next` and `/model prev` to move through long lists, and
+`/model refresh` to reload the provider's model catalog.
 
 {: .tip }
 You can easily re-send commands or messages.

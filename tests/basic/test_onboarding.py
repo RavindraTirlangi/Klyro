@@ -45,7 +45,9 @@ class DummyIO:
 
 class TestOnboarding(unittest.TestCase):
     def setUp(self):
-        self.urlopen_patcher = patch("urllib.request.urlopen", side_effect=Exception("Mocked to prevent real connection"))
+        self.urlopen_patcher = patch(
+            "urllib.request.urlopen", side_effect=Exception("Mocked to prevent real connection")
+        )
         self.mock_urlopen = self.urlopen_patcher.start()
 
     def tearDown(self):

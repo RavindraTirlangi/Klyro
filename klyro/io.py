@@ -1,6 +1,7 @@
 import base64
 import functools
 import os
+import shlex
 import shutil
 import signal
 import subprocess
@@ -16,6 +17,7 @@ from prompt_toolkit.completion import Completer, Completion, ThreadedCompleter
 from prompt_toolkit.cursor_shapes import ModalCursorShapeConfig
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.filters import Condition, is_searching
+from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.vi_state import InputMode
@@ -24,7 +26,6 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.output.vt100 import is_dumb_terminal
 from prompt_toolkit.shortcuts import CompleteStyle, PromptSession
 from prompt_toolkit.styles import Style
-from prompt_toolkit.formatted_text import FormattedText
 from pygments.lexers import MarkdownLexer, guess_lexer_for_filename
 from pygments.token import Token
 from rich.color import ColorParseError
@@ -110,7 +111,7 @@ class AutoCompleter(Completer):
         self.commands = commands
         self.command_completions = dict()
         if commands:
-            self.command_names = self.commands.get_commands()
+            self.command_names = self.commands.get_visible_commands()
 
         for rel_fname in addable_rel_fnames:
             self.words.add(rel_fname)
@@ -424,9 +425,9 @@ class InputOutput:
         style_dict.update(
             {
                 "klyro": "bold white",
-                "branch": "#808080",          # Dark Gray / Light Black
-                "model": "#0087ff",           # Vibrant Blue
-                "arrow": "bold #0087ff",      # Vibrant Blue
+                "branch": "#808080",  # Dark Gray / Light Black
+                "model": "#0087ff",  # Vibrant Blue
+                "arrow": "bold #0087ff",  # Vibrant Blue
                 "mode": "bold white",
                 "bottom-toolbar": "#d7dce2 bg:#0b0f14",
                 "completion-menu": "#d7dce2 bg:#0b0f14",
@@ -573,9 +574,7 @@ class InputOutput:
 
         # Show tracked files as Antigravity-style action bullets: • Read(file)
         rel_fnames = list(rel_fnames)
-        rel_read_only_fnames_list = [
-            get_rel_fname(f, root) for f in (abs_read_only_fnames or [])
-        ]
+        rel_read_only_fnames_list = [get_rel_fname(f, root) for f in abs_read_only_fnames or []]
         if rel_fnames:
             editable = [f for f in sorted(rel_fnames) if f not in rel_read_only_fnames_list]
             read_only = sorted(rel_read_only_fnames_list)
@@ -589,7 +588,6 @@ class InputOutput:
                     self.tool_action("Image", os.path.basename(fname))
                 else:
                     self.tool_action("Read", fname)
-
 
         show = self.format_files_for_input(rel_fnames, rel_read_only_fnames_list)
         if show.strip():
@@ -680,17 +678,21 @@ class InputOutput:
             if is_slash_command and b.complete_state:
                 if not b.complete_state.current_completion:
                     b.complete_state.go_to_index(0)
-                
+
                 old_text = b.text
                 b.apply_completion(b.complete_state.current_completion)
-                
+
                 if old_text == b.text:
                     b.validate_and_handle()
                 return
 
-            if self.multiline_mode and not is_slash_command and not (
-                self.editingmode == EditingMode.VI
-                and event.app.vi_state.input_mode == InputMode.NAVIGATION
+            if (
+                self.multiline_mode
+                and not is_slash_command
+                and not (
+                    self.editingmode == EditingMode.VI
+                    and event.app.vi_state.input_mode == InputMode.NAVIGATION
+                )
             ):
                 # In multiline mode, Enter adds a newline unless it is a slash command
                 b.insert_text("\n")
@@ -735,12 +737,14 @@ class InputOutput:
                     def _bottom_toolbar():
                         """Persistent bottom bar: shortcuts hint on left, model on right."""
                         _model = model_name or ""
-                        return FormattedText([
-                            ("class:toolbar-key", "?"),
-                            ("class:toolbar-hint", " for shortcuts"),
-                            ("class:toolbar-separator", "   │   "),
-                            ("class:toolbar-model", _model),
-                        ])
+                        return FormattedText(
+                            [
+                                ("class:toolbar-key", "?"),
+                                ("class:toolbar-hint", " for shortcuts"),
+                                ("class:toolbar-separator", "   │   "),
+                                ("class:toolbar-model", _model),
+                            ]
+                        )
 
                     line = self.prompt_session.prompt(
                         show,
@@ -1102,6 +1106,7 @@ class InputOutput:
             return
 
         from rich.text import Text
+
         bullet = Text("\u2022 ", style="#38bdf8 bold")
         verb_text = Text(verb, style="#38bdf8")
         paren_open = Text("(", style="#64748b")
@@ -1211,9 +1216,7 @@ class InputOutput:
                     cmd = self.notifications_command
                     if isinstance(cmd, str):
                         cmd = shlex.split(cmd)
-                    result = subprocess.run(
-                        cmd, shell=False, capture_output=True
-                    )
+                    result = subprocess.run(cmd, shell=False, capture_output=True)
                     if result.returncode != 0 and result.stderr:
                         error_msg = result.stderr.decode("utf-8", errors="replace")
                         self.tool_warning(f"Failed to run notifications command: {error_msg}")
@@ -1287,7 +1290,9 @@ class InputOutput:
             ro_paths = []
             for rel_path in read_only_files:
                 if is_image_file(rel_path):
-                    ro_paths.append(Text(f"🖼️ [Image] {os.path.basename(rel_path)}", style="italic green"))
+                    ro_paths.append(
+                        Text(f"🖼️ [Image] {os.path.basename(rel_path)}", style="italic green")
+                    )
                 else:
                     abs_path = os.path.abspath(os.path.join(self.root, rel_path))
                     ro_paths.append(Text(abs_path if len(abs_path) < len(rel_path) else rel_path))
@@ -1302,7 +1307,9 @@ class InputOutput:
             text_editable_files = []
             for f in editable_files:
                 if is_image_file(f):
-                    text_editable_files.append(Text(f"🖼️ [Image] {os.path.basename(f)}", style="green"))
+                    text_editable_files.append(
+                        Text(f"🖼️ [Image] {os.path.basename(f)}", style="green")
+                    )
                 else:
                     text_editable_files.append(Text(f))
             files_with_label = text_editable_files

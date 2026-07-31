@@ -54,7 +54,9 @@ click==8.3.1
 colorama==0.4.6
     # via
     #   -c requirements/common-constraints.txt
+    #   click
     #   griffecli
+    #   tqdm
 dataclasses-json==0.6.7
     # via
     #   -c requirements/common-constraints.txt
@@ -206,8 +208,7 @@ nltk==3.9.3
     # via
     #   -c requirements/common-constraints.txt
     #   llama-index-core
-numpy<2 ; python_version < "3.11"
-numpy>=2.3,<2.5 ; python_version >= "3.11"
+numpy==2.4.6
     # via
     #   -c requirements/common-constraints.txt
     #   -r requirements/requirements-help.in
@@ -276,14 +277,12 @@ safetensors==0.7.0
     # via
     #   -c requirements/common-constraints.txt
     #   transformers
-scikit-learn==1.7.2 ; python_version < "3.11"
-scikit-learn==1.8.0 ; python_version >= "3.11"
+scikit-learn==1.8.0
     # via
     #   -c requirements/common-constraints.txt
     #   -r requirements/requirements-help.in
     #   sentence-transformers
-scipy<1.16 ; python_version < "3.11"
-scipy>=1.16.1,<1.18 ; python_version >= "3.11"
+scipy==1.17.1
     # via
     #   -c requirements/common-constraints.txt
     #   scikit-learn
@@ -354,8 +353,6 @@ typer==0.24.1
 typing-extensions==4.15.0
     # via
     #   -c requirements/common-constraints.txt
-    #   aiosignal
-    #   anyio
     #   huggingface-hub
     #   llama-index-core
     #   llama-index-workflows

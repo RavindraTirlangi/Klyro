@@ -52,8 +52,8 @@ def try_to_select_default_model():
     # Check for local Ollama instance first (free, no API key needed)
     ollama_base = os.environ.get("OLLAMA_API_BASE", "http://localhost:11434")
     try:
-        import urllib.request
         import json
+        import urllib.request
 
         req = urllib.request.Request(f"{ollama_base}/api/tags", method="GET")
         with urllib.request.urlopen(req, timeout=1) as resp:  # nosec B310

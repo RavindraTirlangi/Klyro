@@ -1,0 +1,5 @@
+-r python-compat.in
+pydub
+sounddevice
+soundfile
+audioop-lts>=0.2.2; python_version >= "3.13"

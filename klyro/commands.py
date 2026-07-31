@@ -1,10 +1,10 @@
 import glob
 import os
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
-import shlex
 from collections import OrderedDict
 from os.path import expanduser
 from pathlib import Path
@@ -14,12 +14,14 @@ from PIL import Image, ImageGrab
 from prompt_toolkit.completion import Completion, PathCompleter
 from prompt_toolkit.document import Document
 
-from klyro import models, prompts, voice
+from klyro import models, prompts
+from klyro.command_registry import COMMAND_SPECS, COMMANDS_BY_NAME
 from klyro.editor import pipe_editor
 from klyro.format_settings import format_settings
 from klyro.help import Help, install_help_extra
 from klyro.io import CommandCompletionException
 from klyro.llm import litellm
+from klyro.model_provider import ModelDiscoveryError, ModelProviderService
 from klyro.repo import ANY_GIT_ERROR
 from klyro.run_cmd import run_cmd
 from klyro.scrape import Scraper, install_playwright
@@ -72,6 +74,8 @@ class Commands:
         self.verbose = verbose
 
         self.verify_ssl = verify_ssl
+        self.model_provider = ModelProviderService(verify_ssl=verify_ssl)
+        self.model_page = 0
         if voice_language == "auto":
             voice_language = None
 
@@ -92,7 +96,6 @@ class Commands:
     def cmd_weak_model(self, args):
         "Switch the Weak Model to a new LLM"
         return self.cmd_model(f"weak {args}")
-
 
     def cmd_chat_mode(self, args):
         "Switch to a new chat mode"
@@ -162,13 +165,16 @@ class Commands:
         )
 
     def completions_model(self):
-        models = litellm.model_cost.keys()
-        return models
-
-    def cmd_models(self, args):
-        "Search the list of available models"
-        return self.cmd_model(f"search {args}")
-
+        provider, provider_models = self.get_current_provider_models(fetch_remote=False)
+        aliases = []
+        for alias, model_name in models.MODEL_ALIASES.items():
+            try:
+                _, alias_provider, _, _ = litellm.get_llm_provider(model_name)
+            except Exception:
+                continue
+            if alias_provider == provider:
+                aliases.append(alias)
+        return sorted(set(provider_models + aliases))
 
     def cmd_web(self, args, return_content=False):
         "Scrape a webpage, convert to markdown and send in a message"
@@ -207,7 +213,7 @@ class Commands:
         ]
 
     def is_command(self, inp):
-        return inp[0] in "/!"
+        return bool(inp) and inp[0] in "/!"
 
     def get_raw_completions(self, cmd):
         assert cmd.startswith("/")
@@ -229,7 +235,7 @@ class Commands:
 
     def get_command_metadata(self):
         metadata = []
-        for command in self.get_commands():
+        for command in self.get_visible_commands():
             method_name = f"cmd_{command[1:]}".replace("-", "_")
             method = getattr(self, method_name, None)
             description = ""
@@ -243,32 +249,18 @@ class Commands:
         return descriptions.get(cmd, "")
 
     def get_commands(self):
-        commands = []
-        hidden_commands = {
-            "/editor-model", "/weak-model", "/chat-mode", "/editor", "/copy", 
-            "/copy-context", "/map", "/map-refresh", "/load", "/save", 
-            "/multiline-mode", "/report", "/stats", "/ok", "/context", 
-            "/git", "/voice", "/think-tokens", "/reasoning-effort", "/models"
-        }
-        for attr in dir(self):
-            if not attr.startswith("cmd_"):
-                continue
-            cmd = attr[4:]
-            cmd = cmd.replace("_", "-")
-            slash_cmd = "/" + cmd
-            if slash_cmd not in hidden_commands:
-                commands.append(slash_cmd)
+        return [spec.name for spec in COMMAND_SPECS]
 
-        return commands
-
+    def get_visible_commands(self):
+        return [spec.name for spec in COMMAND_SPECS if spec.visible]
 
     def do_run(self, cmd_name, args):
-        cmd_name = cmd_name.replace("-", "_")
-        cmd_method_name = f"cmd_{cmd_name}"
-        cmd_method = getattr(self, cmd_method_name, None)
-        if not cmd_method:
+        slash_name = "/" + cmd_name.replace("_", "-")
+        spec = COMMANDS_BY_NAME.get(slash_name)
+        if not spec:
             self.io.tool_output(f"Error: Command {cmd_name} not found.")
             return
+        cmd_method = getattr(self, spec.method)
 
         try:
             return cmd_method(args)
@@ -296,10 +288,10 @@ class Commands:
         if res is None:
             return
         matching_commands, first_word, rest_inp = res
-        
+
         # Check for case-insensitive exact match first
         lower_first_word = first_word.lower()
-        
+
         if len(matching_commands) == 1:
             command = matching_commands[0][1:]
             self.coder.event(f"command_{command}")
@@ -312,10 +304,13 @@ class Commands:
             self.io.tool_error(f"Ambiguous command: {', '.join(matching_commands)}")
         else:
             import difflib
+
             all_cmds = self.get_commands()
             close_matches = difflib.get_close_matches(lower_first_word, all_cmds, n=1, cutoff=0.5)
             if close_matches:
-                self.io.tool_error(f"Invalid command: {first_word}. Did you mean {close_matches[0]}?")
+                self.io.tool_error(
+                    f"Invalid command: {first_word}. Did you mean {close_matches[0]}?"
+                )
             else:
                 self.io.tool_error(f"Invalid command: {first_word}")
 
@@ -449,6 +444,50 @@ class Commands:
         self.io.tool_output(f"Last message cost: ${format_cost(message_cost)}")
         self.io.tool_output(f"Total session cost: ${format_cost(total_cost)}")
 
+    def get_current_provider_models(self, fetch_remote=True, force_refresh=False):
+        """Return the current provider and models usable through that provider."""
+        return self.model_provider.list_models(
+            self.coder.main_model.name,
+            allow_network=fetch_remote,
+            force_refresh=force_refresh,
+        )
+
+    def show_current_provider_models(self, force_refresh=False):
+        """Show only models available from the provider currently in use."""
+        current_name = self.coder.main_model.name
+        try:
+            provider, provider_models = self.get_current_provider_models(
+                force_refresh=force_refresh
+            )
+        except ModelDiscoveryError as err:
+            self.io.tool_error(str(err))
+            return
+
+        self.io.tool_output(f"Current model: {current_name}")
+        self.io.tool_output(f"Current provider: {provider}")
+        self.io.tool_output("")
+
+        if not provider_models:
+            self.io.tool_warning(f"No available models were found for {provider}.")
+            return
+
+        page_size = 25
+        page_count = max(1, (len(provider_models) + page_size - 1) // page_size)
+        self.model_page = min(self.model_page, page_count - 1)
+        start = self.model_page * page_size
+        page = provider_models[start : start + page_size]
+
+        self.io.tool_output(
+            f"Available {provider} models "
+            f"(page {self.model_page + 1}/{page_count}, {len(provider_models)} total):"
+        )
+        for model_name in page:
+            marker = "  (current)" if model_name == current_name else ""
+            self.io.tool_output(f"  /model {model_name}{marker}")
+        if page_count > 1:
+            self.io.tool_output("")
+            self.io.tool_output("Use /model next, /model prev, or /model search <text>.")
+
     def cmd_model(self, args):
         "Switch to a different LLM model, or configure/search models"
 
@@ -456,13 +495,39 @@ class Commands:
         parts = args.split()
         subcommand = parts[0].lower() if parts else ""
 
+        if subcommand == "refresh":
+            self.model_provider.invalidate()
+            self.model_page = 0
+            self.show_current_provider_models(force_refresh=True)
+            return
+
+        if subcommand in {"next", "prev"}:
+            self.model_page = max(0, self.model_page + (1 if subcommand == "next" else -1))
+            self.show_current_provider_models()
+            return
+
         # ── /model search <query> ────────────────────────────────────────────
         if subcommand == "search":
             query = " ".join(parts[1:])
             if query:
-                models.print_matching_models(self.io, query)
+                try:
+                    provider, matches = self.model_provider.search_models(
+                        self.coder.main_model.name,
+                        query,
+                    )
+                except ModelDiscoveryError as err:
+                    self.io.tool_error(str(err))
+                    return
+                if matches:
+                    self.io.tool_output(f"Matching {provider} models:")
+                    for model_name in matches:
+                        self.io.tool_output(f"  /model {model_name}")
+                else:
+                    self.io.tool_warning(f"No {provider} models matched {query!r}.")
             else:
-                self.io.tool_output("Please provide a partial model name to search for (e.g. /model search llama).")
+                self.io.tool_output(
+                    "Please provide a partial model name " "(for example: /model search llama)."
+                )
             return
 
         # ── /model editor <name> ─────────────────────────────────────────────
@@ -490,156 +555,34 @@ class Commands:
             model = models.Model(
                 current_model.name,
                 weak_model=model_name,
-                editor_model=current_model.editor_model.name if current_model.editor_model else None,
+                editor_model=(
+                    current_model.editor_model.name if current_model.editor_model else None
+                ),
             )
             models.sanity_check_models(self.io, model)
             raise SwitchCoder(main_model=model)
 
         model_name = args
 
-
-        # ── /model list ──────────────────────────────────────────────────────
-        if model_name.lower() == "list":
-            import requests
-
-            # Check Ollama status and get pulled models
-            ollama_entries = []
-            ollama_active = False
-            try:
-                ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
-                response = requests.get(f"{ollama_host}/api/tags", timeout=0.5)
-                if response.status_code == 200:
-                    data = response.json()
-                    models_data = data.get("models", [])
-                    for m in models_data:
-                        name = m.get("name")
-                        if name:
-                            alias = name
-                            if alias.endswith(":latest"):
-                                alias = alias[:-7]
-                            ollama_entries.append((alias, f"ollama/{name}"))
-                    ollama_active = len(ollama_entries) > 0
-            except Exception:
-                pass
-
-            checks = [
-                ("Anthropic Claude", os.environ.get("ANTHROPIC_API_KEY"), [
-                    ("claude / sonnet", "claude-sonnet-4-6  ← latest Sonnet"),
-                    ("opus",            "claude-opus-4-7    ← most capable"),
-                    ("haiku",           "claude-haiku-4-5   ← fastest/cheapest"),
-                    ("claude3.7",       "claude-3-7-sonnet-20250219"),
-                    ("claude3-opus",    "claude-3-opus-20240229"),
-                ]),
-                ("OpenAI GPT", os.environ.get("OPENAI_API_KEY"), [
-                    ("4o",       "gpt-4o              ← recommended"),
-                    ("4o-mini",  "gpt-4o-mini         ← cheapest OpenAI"),
-                    ("o1",       "o1                  ← reasoning"),
-                    ("o1-mini",  "o1-mini"),
-                    ("o3-mini",  "o3-mini"),
-                    ("gpt5",     "gpt-5.5"),
-                ]),
-                ("Google Gemini", os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"), [
-                    ("gemini / gemini-pro",  "gemini-2.5-pro     ← recommended"),
-                    ("flash",               "gemini-2.5-flash   ← fast"),
-                    ("flash-lite",          "gemini-2.5-flash-lite"),
-                    ("gemini-1.5-pro",      "gemini-1.5-pro"),
-                    ("gemini-1.5-flash",    "gemini-1.5-flash"),
-                ]),
-                ("DeepSeek", os.environ.get("DEEPSEEK_API_KEY"), [
-                    ("deepseek / deepseek-v3", "deepseek-chat"),
-                    ("r1 / deepseek-r1",       "deepseek-reasoner  ← best reasoning"),
-                    ("r1-lite",                "deepseek-r1-0528 (free via OpenRouter)"),
-                ]),
-                ("Mistral", os.environ.get("MISTRAL_API_KEY"), [
-                    ("mistral / mistral-large", "mistral-large-latest"),
-                    ("mistral-small",            "mistral-small-latest"),
-                    ("codestral",               "codestral-latest"),
-                    ("pixtral",                 "pixtral-large-latest"),
-                ]),
-                ("Meta Llama (local via Ollama)", ollama_active, ollama_entries),
-                ("xAI Grok", os.environ.get("XAI_API_KEY"), [
-                    ("grok / grok3",  "xai/grok-3-beta"),
-                    ("grok3-mini",    "xai/grok-3-mini-beta"),
-                    ("grok2",         "xai/grok-2-latest"),
-                ]),
-                ("Groq (ultra-fast)", os.environ.get("GROQ_API_KEY"), [
-                    ("groq-llama / groq-llama3", "groq/llama-3.3-70b-versatile"),
-                    ("groq-mixtral",              "groq/mixtral-8x7b-32768"),
-                    ("groq-gemma",                "groq/gemma2-9b-it"),
-                ]),
-                ("Cohere", os.environ.get("COHERE_API_KEY"), [
-                    ("command / command-r-plus", "cohere/command-r-plus"),
-                    ("command-r",               "cohere/command-r"),
-                    ("command-a",               "cohere/command-a-03-2025"),
-                ]),
-                ("OpenRouter (free tier)", os.environ.get("OPENROUTER_API_KEY"), [
-                    ("llama-free",     "meta-llama/llama-3.1-8b-instruct:free"),
-                    ("gemma-free",     "google/gemma-3-27b-it:free"),
-                    ("deepseek-free",  "deepseek/deepseek-r1-0528:free"),
-                    ("qwen-free",      "qwen/qwen3-235b-a22b:free"),
-                    ("quasar",         "openrouter/quasar-alpha"),
-                    ("optimus",        "openrouter/optimus-alpha"),
-                ]),
-                ("AWS Bedrock", os.environ.get("AWS_ACCESS_KEY_ID") or os.environ.get("AWS_PROFILE"), [
-                    ("bedrock-claude", "anthropic.claude-3-5-sonnet-20241022-v2:0"),
-                    ("bedrock-llama",  "meta.llama3-70b-instruct-v1:0"),
-                    ("bedrock-titan",  "amazon.titan-text-express-v1"),
-                ]),
-                ("Azure OpenAI", os.environ.get("AZURE_OPENAI_API_KEY"), [
-                    ("azure-gpt4o", "azure/gpt-4o"),
-                    ("azure-gpt4",  "azure/gpt-4"),
-                ]),
-            ]
-
-            providers = []
-            for name, is_active, entries in checks:
-                if is_active:
-                    providers.append((name, entries))
-
-            # Fallback: if no keys/services are active, show all standard templates
-            if not providers:
-                providers = [
-                    (name, entries) for name, _, entries in checks if entries
-                ]
-
-            self.io.tool_output(f"\nCurrent model: {self.coder.main_model.name}\n")
-            self.io.tool_output("Available models (use: /model <alias>):\n")
-            for provider, entries in providers:
-                self.io.tool_output(f"  ── {provider} ──")
-                for alias, full in entries:
-                    self.io.tool_output(f"    {alias:<30}  →  {full}")
-                self.io.tool_output("")
-            self.io.tool_output("Or use any full model string, e.g.:")
-            self.io.tool_output("  /model openrouter/google/gemini-pro-1.5")
-            self.io.tool_output("  /model ollama/phi4")
+        # Both forms list only models available from the provider in use.
+        if not model_name or model_name.lower() == "list":
+            self.show_current_provider_models()
             return
-
-
-        # ── /model (no arg) ──────────────────────────────────────────────────
-        if not model_name:
-            self.io.tool_output(f"Current model: {self.coder.main_model.name}")
-            self.io.tool_output("")
-            self.io.tool_output("  /model list                   → show all providers & aliases")
-            self.io.tool_output("  /model search <query>         → search matching model names")
-            self.io.tool_output("  /model editor <name>          → switch the editor model")
-            self.io.tool_output("  /model weak <name>            → switch the weak model")
-            self.io.tool_output("  /model <alias>                → switch model (e.g. /model flash)")
-            self.io.tool_output("  /model <full-name>            → switch by full name (e.g. /model ollama/llama3.2)")
-            return
-
 
         # ── /model <name> ────────────────────────────────────────────────────
         current_model = self.coder.main_model
         try:
             new_model = models.Model(
                 model_name,
-                weak_model=current_model.weak_model.name,
-                editor_model=current_model.editor_model.name,
+                weak_model=(current_model.weak_model.name if current_model.weak_model else None),
+                editor_model=(
+                    current_model.editor_model.name if current_model.editor_model else None
+                ),
                 editor_edit_format=current_model.editor_edit_format,
             )
         except Exception as err:
             self.io.tool_error(f"Unknown model '{model_name}': {err}")
-            self.io.tool_output("Run /model list to see all available aliases.")
+            self.io.tool_output("Run /model to see models available from the current provider.")
             return
 
         self.io.tool_output(f"Switching to: {new_model.name}")
@@ -920,7 +863,7 @@ class Commands:
         self.io.tool_output(f"Diff since {commit_before_message[:7]}...")
 
         if self.coder.pretty:
-            run_cmd(f"git diff {commit_before_message}")
+            run_cmd(["git", "diff", commit_before_message])
             return
 
         diff = self.coder.repo.diff_commits(
@@ -1250,7 +1193,11 @@ class Commands:
     def cmd_run(self, args, add_on_nonzero_exit=False):
         "Run a shell command and optionally add the output to the chat (alias: !)"
         exit_status, combined_output = run_cmd(
-            args, verbose=self.verbose, error_print=self.io.tool_error, cwd=self.coder.root
+            args,
+            verbose=self.verbose,
+            error_print=self.io.tool_error,
+            cwd=self.coder.root,
+            use_shell=True,
         )
 
         if combined_output is None:
@@ -1294,7 +1241,6 @@ class Commands:
         self.coder.event("exit", reason="/exit")
         sys.exit()
 
-
     def cmd_ls(self, args):
         "List all known files and indicate which are included in the chat session"
 
@@ -1335,7 +1281,7 @@ class Commands:
             self.io.tool_output(f"  {file}")
 
     def basic_help(self):
-        commands = sorted(self.get_commands())
+        commands = sorted(self.get_visible_commands())
         pad = max(len(cmd) for cmd in commands)
         pad = "{cmd:" + str(pad) + "}"
         for cmd in commands:
@@ -1444,6 +1390,7 @@ class Commands:
 
         # Check if any arguments are files in the repo and auto-add them
         import re
+
         words = re.findall(r"\"(.+?)\"|(\S+)", args)
         words = [w for sublist in words for w in sublist if w]
         for word in words:
@@ -1483,7 +1430,7 @@ class Commands:
 |Command|Description|
 |:------|:----------|
 """
-        commands = sorted(self.get_commands())
+        commands = sorted(self.get_visible_commands())
         for cmd in commands:
             cmd_method_name = f"cmd_{cmd[1:]}".replace("-", "_")
             cmd_method = getattr(self, cmd_method_name, None)
@@ -1498,6 +1445,13 @@ class Commands:
 
     def cmd_voice(self, args):
         "Record and transcribe voice input"
+        try:
+            from klyro import voice
+        except ImportError:
+            self.io.tool_error(
+                "Voice support is not installed. Install it with: pip install 'klyro[voice]'"
+            )
+            return
 
         if not self.voice:
             if "OPENAI_API_KEY" not in os.environ:
@@ -1582,6 +1536,7 @@ class Commands:
         # Parse arguments to see if a file path is provided
         if args:
             import re
+
             quoted_match = re.match(r'^([\'"])(.*?)\1\s*(.*)$', args)
             if quoted_match:
                 potential_path_str = quoted_match.group(2)
@@ -1605,7 +1560,6 @@ class Commands:
                     else:
                         prompt = args
 
-
         # If no local image path was found, grab from clipboard
         if not image_path:
             try:
@@ -1622,10 +1576,14 @@ class Commands:
                     if is_image_file(potential_file):
                         image_path = str(Path(potential_file).resolve())
                     else:
-                        self.io.tool_error(f"The file in your clipboard ({os.path.basename(potential_file)}) is not a recognized image format.")
+                        self.io.tool_error(
+                            f"The file in your clipboard ({os.path.basename(potential_file)}) is not a recognized image format."
+                        )
                         return
                 else:
-                    self.io.tool_error("No image found in clipboard, and no valid local image file path provided.")
+                    self.io.tool_error(
+                        "No image found in clipboard, and no valid local image file path provided."
+                    )
                     return
             except Exception as e:
                 self.io.tool_error(f"Error grabbing image from clipboard: {e}")
@@ -1634,7 +1592,9 @@ class Commands:
         # Add image path to the chat
         if image_path:
             if not is_image_file(image_path):
-                self.io.tool_error(f"The file {image_path} is not recognized as a valid image file.")
+                self.io.tool_error(
+                    f"The file {image_path} is not recognized as a valid image file."
+                )
                 return
 
             # Check if model supports vision
@@ -1664,7 +1624,6 @@ class Commands:
             # Immediately run the coder with the prompt
             self.io.tool_output(f"Analyzing image details: '{prompt}'...")
             self.coder.run(with_message=prompt)
-
 
     def cmd_read_only(self, args):
         "Add files to the chat that are for reference only, or turn added files to read-only"
@@ -1913,7 +1872,6 @@ class Commands:
         user_input = pipe_editor(initial_content, suffix="md", editor=self.editor)
         if user_input.strip():
             self.io.set_placeholder(user_input.rstrip())
-
 
     def cmd_think_tokens(self, args):
         """Set the thinking token budget, eg: 8096, 8k, 10.5k, 0.5M, or 0 to disable."""

@@ -1217,7 +1217,14 @@ class TestMain(TestCase):
 
     def test_thinking_tokens_option(self):
         coder = main(
-            ["--model", "sonnet", "--thinking-tokens", "1000", "--yes", "--exit"],
+            [
+                "--model",
+                "anthropic/claude-3-7-sonnet-20250219",
+                "--thinking-tokens",
+                "1000",
+                "--yes",
+                "--exit",
+            ],
             input=DummyInput(),
             output=DummyOutput(),
             return_coder=True,

@@ -6,6 +6,7 @@ This module keeps a local cached copy of the OpenRouter model list
 helper class that returns metadata for a given model in a format compatible
 with litellm’s ``get_model_info``.
 """
+
 from __future__ import annotations
 
 import json
@@ -14,6 +15,10 @@ from pathlib import Path
 from typing import Dict
 
 import requests
+
+
+class OpenRouterRequestError(Exception):
+    pass
 
 
 def _cost_per_token(val: str | None) -> float | None:
@@ -81,6 +86,46 @@ class OpenRouterModelManager:
             "output_cost_per_token": _cost_per_token(pricing.get("completion")),
             "litellm_provider": "openrouter",
         }
+
+    def get_model_names(self, api_key: str | None = None) -> list[str]:
+        """Return OpenRouter text models, filtered for the user when authenticated."""
+        content = None
+        if api_key:
+            try:
+                response = requests.get(
+                    f"{self.MODELS_URL}/user",
+                    headers={"Authorization": f"Bearer {api_key}"},
+                    params={"output_modalities": "text"},
+                    timeout=10,
+                    verify=self.verify_ssl,
+                )
+                response.raise_for_status()
+                content = response.json()
+            except requests.Timeout as err:
+                raise OpenRouterRequestError("OpenRouter model discovery timed out.") from err
+            except requests.HTTPError as err:
+                status = err.response.status_code if err.response is not None else "unknown"
+                if status == 401:
+                    message = "OpenRouter rejected the API key."
+                else:
+                    message = f"OpenRouter model discovery failed with HTTP {status}."
+                raise OpenRouterRequestError(message) from err
+            except requests.RequestException as err:
+                raise OpenRouterRequestError(f"Unable to reach OpenRouter: {err}") from err
+        else:
+            self._ensure_content()
+            content = self.content
+
+        if not content:
+            return []
+
+        names = []
+        for item in content.get("data", []):
+            model_id = item.get("id")
+            output_modalities = item.get("architecture", {}).get("output_modalities", [])
+            if model_id and (not output_modalities or "text" in output_modalities):
+                names.append(f"openrouter/{model_id}")
+        return sorted(set(names))
 
     # ------------------------------------------------------------------ #
     # Internal helpers                                                   #

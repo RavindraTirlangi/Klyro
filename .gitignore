@@ -12,6 +12,9 @@ _site
 .jekyll-metadata
 klyro/_version.py
 .venv/
+.pytest-tmp/
+.pre-commit-cache/
+.wheel-*/
 .#*
 .gitattributes
 tmp.benchmarks/

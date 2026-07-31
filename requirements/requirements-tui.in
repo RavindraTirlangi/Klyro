@@ -1,0 +1,2 @@
+-r python-compat.in
+textual>=8.0

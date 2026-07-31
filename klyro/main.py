@@ -1,3 +1,4 @@
+import atexit
 import json
 import os
 import re
@@ -21,7 +22,6 @@ from prompt_toolkit.enums import EditingMode
 from klyro import __version__, models, urls, utils
 from klyro.analytics import Analytics
 from klyro.args import get_parser
-from klyro.banner import print_banner
 from klyro.coders import Coder
 from klyro.coders.base_coder import UnknownEditFormat
 from klyro.commands import Commands, SwitchCoder
@@ -39,6 +39,38 @@ from klyro.versioncheck import check_version, install_from_main_branch, install_
 from klyro.watch import FileWatcher
 
 from .dump import dump  # noqa: F401
+
+
+def configure_insecure_ssl():
+    """Disable TLS verification for this process and close replacement clients at exit."""
+    import asyncio
+    import inspect
+
+    import httpx
+
+    print(
+        "WARNING: TLS certificate verification is disabled for all model requests "
+        "in this Klyro session.",
+        file=sys.stderr,
+    )
+    os.environ["SSL_VERIFY"] = ""
+    litellm._load_litellm()
+    client = httpx.Client(verify=False)  # nosec B501
+    async_client = httpx.AsyncClient(verify=False)  # nosec B501
+    litellm._lazy_module.client_session = client
+    litellm._lazy_module.aclient_session = async_client
+    atexit.register(client.close)
+
+    def close_async_client():
+        try:
+            close_result = async_client.aclose()
+            if inspect.isawaitable(close_result):
+                asyncio.run(close_result)
+        except (RuntimeError, OSError, TypeError):
+            pass
+
+    atexit.register(close_async_client)
+    models.model_info_manager.set_verify_ssl(False)
 
 
 def check_config_files_for_yes(config_files):
@@ -375,6 +407,9 @@ def load_dotenv_files(git_root, dotenv_fname, encoding="utf-8"):
         # Remove duplicates if it somehow got included by generate_search_path_list
         dotenv_files = list(dict.fromkeys(dotenv_files))
 
+    # Files later in the search order override earlier files, while values
+    # explicitly supplied by the parent process always retain highest priority.
+    original_environment = dict(os.environ)
     loaded = []
     for fname in dotenv_files:
         try:
@@ -385,6 +420,9 @@ def load_dotenv_files(git_root, dotenv_fname, encoding="utf-8"):
             print(f"OSError loading {fname}: {e}")
         except Exception as e:
             print(f"Error loading {fname}: {e}")
+
+    for name, value in original_environment.items():
+        os.environ[name] = value
     return loaded
 
 
@@ -451,8 +489,9 @@ def sanity_check_repo(repo, io):
 
 def main(argv=None, input=None, output=None, force_git_root=None, return_coder=False):
     import sys
+
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding="utf-8")
     except AttributeError:
         pass
     report_uncaught_exceptions()
@@ -523,14 +562,7 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
         print("Analytics have been permanently disabled.")
 
     if not args.verify_ssl:
-        import httpx
-
-        os.environ["SSL_VERIFY"] = ""
-        litellm._load_litellm()
-        litellm._lazy_module.client_session = httpx.Client(verify=False)  # nosec B501
-        litellm._lazy_module.aclient_session = httpx.AsyncClient(verify=False)  # nosec B501
-        # Set verify_ssl on the model_info_manager
-        models.model_info_manager.set_verify_ssl(False)
+        configure_insecure_ssl()
 
     if args.timeout:
         models.request_timeout = args.timeout
@@ -553,9 +585,14 @@ def main(argv=None, input=None, output=None, force_git_root=None, return_coder=F
         args.yes_always = True
 
     editing_mode = EditingMode.VI if args.vim else EditingMode.EMACS
-    from klyro.tui import TuiInputOutput, should_use_tui
-
-    use_tui = should_use_tui(args, return_coder=return_coder)
+    use_tui = False
+    TuiInputOutput = None
+    if args.tui and not return_coder:
+        try:
+            from klyro.tui import TuiInputOutput, should_use_tui
+        except ImportError:
+            parser.error("TUI support is not installed. Install it with: pip install 'klyro[tui]'")
+        use_tui = should_use_tui(args, return_coder=return_coder)
 
     def get_io(pretty):
         io_class = TuiInputOutput if use_tui else InputOutput

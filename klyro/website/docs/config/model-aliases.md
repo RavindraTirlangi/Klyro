@@ -61,45 +61,13 @@ Main model: o3-mini with diff edit format
 >
 ```
 
-## Built-in Aliases
-
-Klyro includes some built-in aliases for convenience:
-
-<!--[[[cog
-import cog
-from klyro.models import MODEL_ALIASES
-
-for alias, model in sorted(MODEL_ALIASES.items()):
-    cog.outl(f"- `{alias}`: {model}")
-]]]-->
-- `3`: gpt-3.5-turbo
-- `35-turbo`: gpt-3.5-turbo
-- `35turbo`: gpt-3.5-turbo
-- `4`: gpt-4-0613
-- `4-turbo`: gpt-4-1106-preview
-- `4o`: gpt-4o
-- `deepseek`: deepseek/deepseek-chat
-- `flash`: gemini/gemini-flash-latest
-- `flash-lite`: gemini/gemini-2.5-flash-lite
-- `gemini`: gemini/gemini-3-pro-preview
-- `gemini-2.5-pro`: gemini/gemini-2.5-pro
-- `gemini-3-pro-preview`: gemini/gemini-3-pro-preview
-- `gemini-exp`: gemini/gemini-2.5-pro-exp-03-25
-- `grok3`: xai/grok-3-beta
-- `haiku`: claude-haiku-4-5
-- `optimus`: openrouter/openrouter/optimus-alpha
-- `opus`: claude-opus-4-7
-- `quasar`: openrouter/openrouter/quasar-alpha
-- `r1`: deepseek/deepseek-reasoner
-- `sonnet`: claude-sonnet-4-6
-<!--[[[end]]]-->
-
 ## Priority
 
-If the same alias is defined in multiple places, the priority is:
+If the same alias is defined more than once, the priority is:
 
 1. Command line aliases (highest priority)
 2. Configuration file aliases
-3. Built-in aliases (lowest priority)
 
-This allows you to override built-in aliases with your own preferences.
+Klyro does not ship built-in aliases. Run `/model` to discover exact model
+identifiers from the current provider, then define only the personal aliases
+you need.

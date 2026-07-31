@@ -1,17 +1,13 @@
-pydub
 configargparse
 GitPython
 jsonschema
 rich
-textual>=8.0
 prompt_toolkit
 backoff
 pathspec
 diskcache
 grep_ast
 packaging
-sounddevice
-soundfile
 beautifulsoup4
 PyYAML
 diff-match-patch

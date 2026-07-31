@@ -58,6 +58,12 @@ for additional information.
 Klyro supports 
 [coding with your voice](https://klyro.chat/docs/usage/voice.html)
 using the in-chat `/voice` command.
+Install the optional voice dependencies first:
+
+```
+python -m pip install "klyro[voice]"
+```
+
 Klyro uses the [PortAudio](http://www.portaudio.com) library to
 capture audio.
 Installing PortAudio is completely optional, but can usually be accomplished like this:
@@ -66,6 +72,16 @@ Installing PortAudio is completely optional, but can usually be accomplished lik
 - For Mac, do `brew install portaudio`
 - For Linux, do `sudo apt-get install libportaudio2`
   - Some linux environments may also need `sudo apt install libasound2-plugins`
+
+## Enable the terminal UI
+
+Install the optional terminal UI dependencies with:
+
+```
+python -m pip install "klyro[tui]"
+```
+
+Then launch it with `klyro --tui`.
 
 ## Add klyro to your IDE/editor
 

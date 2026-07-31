@@ -75,6 +75,7 @@ class TestInputOutput(unittest.TestCase):
         # Step 3: Mock the commands object
         commands = MagicMock()
         commands.get_commands.return_value = ["/help", "/add", "/drop"]
+        commands.get_visible_commands.return_value = ["/help", "/add", "/drop"]
         commands.get_command_metadata.return_value = [
             ("/add", "Add files"),
             ("/drop", "Drop files"),

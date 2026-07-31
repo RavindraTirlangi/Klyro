@@ -26,10 +26,19 @@ Klyro collects information on:
 These analytics are associated with an anonymous,
 randomly generated UUID4 user identifier.
 
+The identifier and consent choice are stored locally in
+`~/.klyro/analytics.json`. Removing that file resets both values.
+
 This information helps improve klyro by identifying which models, edit formats,
 features and commands are most used.
 It also helps uncover bugs that users are experiencing, so that they can be fixed
 in upcoming releases.
+
+System properties attached to events are limited to the Python version,
+operating-system name and release, machine architecture, and Klyro version.
+Known public model identifiers may be recorded; unrecognized provider model
+names are redacted. Source code, prompts, chat content, repository paths, API
+keys, and environment-variable values are not intentionally collected.
 
 ## Disabling analytics
 
@@ -110,7 +119,11 @@ klyro --analytics-log filename.jsonl --no-analytics
 Klyro uses PostHog for analytics collection. You can configure klyro to send analytics to your own PostHog project or a custom PostHog installation using these parameters:
 
 - `--analytics-posthog-project-api-key KEY` - Set a custom PostHog project API key
-- `--analytics-posthog-host HOST` - Set a custom PostHog host (default is app.posthog.com)
+- `--analytics-posthog-host HOST` - Set a custom PostHog host (default is us.i.posthog.com)
+
+The built-in endpoint is `https://us.i.posthog.com`. Use
+`--analytics-log filename.jsonl --no-analytics` to inspect events locally
+without transmitting them.
 
 ## Reporting issues
 

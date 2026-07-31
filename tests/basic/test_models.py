@@ -118,30 +118,11 @@ class TestModels(unittest.TestCase):
         mock_check_deps.assert_called_once_with(mock_io, "test-model")
 
     def test_model_aliases(self):
-        # Test common aliases
-        model = Model("4")
-        self.assertEqual(model.name, "gpt-4-0613")
+        from klyro.models import MODEL_ALIASES
 
-        model = Model("4o")
-        self.assertEqual(model.name, "gpt-4o")
-
-        model = Model("35turbo")
-        self.assertEqual(model.name, "gpt-3.5-turbo")
-
-        model = Model("35-turbo")
-        self.assertEqual(model.name, "gpt-3.5-turbo")
-
-        model = Model("3")
-        self.assertEqual(model.name, "gpt-3.5-turbo")
-
-        model = Model("sonnet")
-        self.assertEqual(model.name, "claude-sonnet-4-6")
-
-        model = Model("haiku")
-        self.assertEqual(model.name, "claude-haiku-4-5")
-
-        model = Model("opus")
-        self.assertEqual(model.name, "claude-opus-4-7")
+        with patch.dict(MODEL_ALIASES, {"fast": "gpt-4o"}, clear=True):
+            model = Model("fast")
+            self.assertEqual(model.name, "gpt-4o")
 
         # Test non-alias passes through unchanged
         model = Model("gpt-4")

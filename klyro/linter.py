@@ -54,6 +54,7 @@ class Linter:
                 cmd,
                 cwd=self.root,
                 encoding=self.encoding,
+                use_shell=True,
             )
         except OSError as err:
             print(f"Unable to execute lint command: {err}")

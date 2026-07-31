@@ -1,8 +1,8 @@
-import threading
-import time
 import hashlib
 import os
 import tempfile
+import threading
+import time
 from pathlib import Path
 
 import pyperclip
@@ -42,25 +42,32 @@ class ClipboardWatcher:
                             img_hash = hashlib.md5(image.tobytes()).hexdigest()
                             if img_hash != self.last_image_hash:
                                 self.last_image_hash = img_hash
-                                
+
                                 # Save clipboard image to a temp file
                                 temp_dir = tempfile.mkdtemp()
                                 temp_file_path = os.path.join(temp_dir, "clipboard_image.png")
                                 image.save(temp_file_path, "PNG")
                                 abs_file_path = str(Path(temp_file_path).resolve())
-                                
+
                                 # If coder is available, add to file context
                                 if hasattr(self.io, "coder") and self.io.coder:
                                     existing_file = next(
-                                        (f for f in self.io.coder.abs_fnames if Path(f).name == "clipboard_image.png"), None
+                                        (
+                                            f
+                                            for f in self.io.coder.abs_fnames
+                                            if Path(f).name == "clipboard_image.png"
+                                        ),
+                                        None,
                                     )
                                     if existing_file:
                                         self.io.coder.abs_fnames.remove(existing_file)
-                                    
+
                                     self.io.coder.abs_fnames.add(abs_file_path)
                                     self.io.interrupt_input()
                                     self.io.tool_action("Read", "clipboard_image.png")
-                                    self.io.tool_output("Added clipboard image to the chat context.")
+                                    self.io.tool_output(
+                                        "Added clipboard image to the chat context."
+                                    )
                                     # Sleep to prevent double trigger
                                     time.sleep(0.5)
                                     continue
@@ -81,6 +88,7 @@ class ClipboardWatcher:
                 except Exception as e:
                     if self.verbose:
                         from klyro.dump import dump
+
                         dump(f"Clipboard watcher error: {e}")
                     continue
 

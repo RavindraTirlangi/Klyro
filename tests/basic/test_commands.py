@@ -51,10 +51,12 @@ class TestCommands(TestCase):
     @patch("klyro.commands.ImageGrab.grabclipboard")
     def test_cmd_image(self, mock_grab):
         from unittest.mock import MagicMock
+
         from PIL import Image
-        
+
         io = InputOutput(pretty=False, fancy_input=False, yes=True)
         from klyro.coders import Coder
+
         coder = Coder.create(self.GPT35, None, io)
         coder.run = MagicMock()
         commands = Commands(io, coder)
@@ -63,7 +65,7 @@ class TestCommands(TestCase):
         local_img = "test_image.png"
         with open(local_img, "wb") as f:
             f.write(b"fake image content")
-        
+
         try:
             commands.cmd_image(f"{local_img} What is this?")
             self.assertIn(str(Path(local_img).resolve()), coder.abs_fnames)
@@ -75,19 +77,18 @@ class TestCommands(TestCase):
         # 2. Test clipboard image fallback
         coder.run.reset_mock()
         coder.abs_fnames.clear()
-        
+
         # Create a mock PIL image
         img = Image.new("RGB", (10, 10))
         mock_grab.return_value = img
 
         commands.cmd_image("Describe this clipboard image")
-        
+
         # Should have saved clipboard image and added to abs_fnames
         added_file = next(iter(coder.abs_fnames))
         self.assertTrue(added_file.endswith("clipboard_image.png"))
         self.assertTrue(os.path.exists(added_file))
         coder.run.assert_called_once_with(with_message="Describe this clipboard image")
-
 
     def test_command_metadata_uses_docstrings(self):
         io = InputOutput(pretty=False, fancy_input=False, yes=True)
@@ -99,13 +100,102 @@ class TestCommands(TestCase):
         self.assertIn("/add", metadata)
         self.assertIn("/model", metadata)
         self.assertEqual(
-            metadata["/add"], "Add files to the chat so klyro can edit them or review them in detail"
+            metadata["/add"],
+            "Add files to the chat so klyro can edit them or review them in detail",
         )
         self.assertEqual(
             metadata["/model"],
             "Switch to a different LLM model, or configure/search models",
         )
 
+    def test_hidden_commands_remain_executable(self):
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        coder = Coder.create(self.GPT35, None, io)
+        commands = Commands(io, coder)
+
+        matches, _, _ = commands.matching_commands("/chat-mode ask")
+
+        self.assertEqual(matches, ["/chat-mode"])
+        self.assertNotIn("/chat-mode", commands.get_visible_commands())
+        self.assertIn("/context", commands.get_visible_commands())
+        self.assertIn("/git", commands.get_visible_commands())
+        self.assertIn("/map", commands.get_visible_commands())
+
+    def test_cmd_model_without_args_lists_only_current_provider(self):
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        coder = Coder.create(self.GPT35, None, io)
+        coder.main_model.name = "openrouter/deepseek/deepseek-r1:free"
+        commands = Commands(io, coder)
+        available = [
+            "openrouter/deepseek/deepseek-r1:free",
+            "openrouter/google/gemma-3-27b-it:free",
+        ]
+
+        with (
+            mock.patch.object(
+                commands,
+                "get_current_provider_models",
+                return_value=("openrouter", available),
+            ),
+            mock.patch.object(io, "tool_output") as mock_output,
+        ):
+            commands.cmd_model("")
+
+        output = "\n".join(str(call.args[0]) for call in mock_output.call_args_list)
+        self.assertIn("Current provider: openrouter", output)
+        self.assertIn("/model openrouter/deepseek/deepseek-r1:free", output)
+        self.assertIn("/model openrouter/google/gemma-3-27b-it:free", output)
+        self.assertNotIn("ollama/", output)
+        self.assertNotIn("gpt-4o", output)
+
+    @patch("requests.get")
+    def test_current_ollama_provider_lists_only_installed_models(self, mock_get):
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        coder = Coder.create(self.GPT35, None, io)
+        coder.main_model.name = "ollama/qwen2.5-coder:latest"
+        commands = Commands(io, coder)
+        response = mock.Mock()
+        response.json.return_value = {
+            "models": [
+                {"name": "qwen2.5-coder:latest"},
+                {"name": "deepseek-r1:8b"},
+            ]
+        }
+        mock_get.return_value = response
+
+        provider, available = commands.get_current_provider_models()
+
+        self.assertEqual(provider, "ollama")
+        self.assertEqual(
+            available,
+            [
+                "ollama/deepseek-r1:8b",
+                "ollama/qwen2.5-coder:latest",
+            ],
+        )
+        mock_get.assert_called_once()
+
+    def test_cmd_model_search_is_limited_to_current_provider(self):
+        io = InputOutput(pretty=False, fancy_input=False, yes=True)
+        coder = Coder.create(self.GPT35, None, io)
+        commands = Commands(io, coder)
+
+        with (
+            mock.patch.object(
+                commands.model_provider,
+                "search_models",
+                return_value=(
+                    "openrouter",
+                    ["openrouter/deepseek/deepseek-r1:free"],
+                ),
+            ),
+            mock.patch.object(io, "tool_output") as mock_output,
+        ):
+            commands.cmd_model("search deepseek")
+
+        output = "\n".join(str(call.args[0]) for call in mock_output.call_args_list)
+        self.assertIn("openrouter/deepseek/deepseek-r1:free", output)
+        self.assertNotIn("openrouter/google/gemma-3-27b-it:free", output)
 
     def test_cmd_copy(self):
         # Initialize InputOutput and Coder instances
@@ -1648,17 +1738,18 @@ class TestCommands(TestCase):
             self.assertEqual(len(coder.abs_read_only_fnames), 0)
 
     def test_cmd_read_only_with_tilde_path(self):
-        with GitTemporaryDirectory():
+        with GitTemporaryDirectory() as repo_dir:
             io = InputOutput(pretty=False, fancy_input=False, yes=False)
             coder = Coder.create(self.GPT35, None, io)
             commands = Commands(io, coder)
 
-            # Create a test file in the user's home directory
-            home_dir = os.path.expanduser("~")
-            test_file = Path(home_dir) / "test_read_only_file.txt"
+            # Use an isolated fake home rather than writing into the developer's home.
+            home_dir = Path(repo_dir) / "fake-home"
+            home_dir.mkdir()
+            test_file = home_dir / "test_read_only_file.txt"
             test_file.write_text("Test content")
 
-            try:
+            with patch.dict(os.environ, {"USERPROFILE": str(home_dir)}):
                 # Test the /read-only command with a path in the user's home directory
                 relative_path = os.path.join("~", "test_read_only_file.txt")
                 commands.cmd_read_only(relative_path)
@@ -1676,10 +1767,6 @@ class TestCommands(TestCase):
 
                 # Check if the file was removed from abs_read_only_fnames
                 self.assertEqual(len(coder.abs_read_only_fnames), 0)
-
-            finally:
-                # Clean up: remove the test file from the home directory
-                test_file.unlink()
 
     # pytest tests/basic/test_commands.py  -k test_cmd_read_only_with_square_brackets
     def test_cmd_read_only_with_square_brackets(self):

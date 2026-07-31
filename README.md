@@ -36,6 +36,14 @@ Works with GPT-4o, Claude, Gemini, DeepSeek, Ollama, Grok, Groq, Mistral — and
 pip install klyro
 ```
 
+Optional features are installed explicitly:
+
+```bash
+pip install "klyro[voice]"       # microphone transcription
+pip install "klyro[tui]"         # experimental full terminal UI
+pip install "klyro[playwright]"  # browser automation
+```
+
 ```bash
 # Run with your API key set
 klyro
@@ -98,10 +106,10 @@ Applies changes surgically:
 ### 🔀 Model Switching On-the-Fly
 Switch any time without restarting:
 ```
-/model flash        → Gemini 2.5 Flash
-/model r1           → DeepSeek R1
-/model groq-llama   → Groq (ultra-fast)
-/model list         → see all options
+/model                              → list current provider's models
+/model search coder                 → search current provider
+/model openrouter/deepseek/deepseek-r1:free
+/model ollama/qwen2.5-coder:latest
 ```
 
 </td>
@@ -112,45 +120,16 @@ Switch any time without restarting:
 
 ## 🧠 Supported Models
 
-Switch models inside Klyro using `/model <alias>`:
+Klyro discovers models from the provider currently in use instead of shipping
+a fixed model catalogue:
 
-<table>
-<thead><tr><th>Provider</th><th>Alias</th><th>Model</th></tr></thead>
-<tbody>
-<tr><td rowspan="3"><b>Anthropic</b></td><td><code>claude</code> / <code>sonnet</code></td><td>claude-sonnet-4-6 ⭐ latest</td></tr>
-<tr><td><code>opus</code></td><td>claude-opus-4-7 — most capable</td></tr>
-<tr><td><code>haiku</code></td><td>claude-haiku-4-5 — fastest</td></tr>
-<tr><td rowspan="3"><b>OpenAI</b></td><td><code>4o</code></td><td>gpt-4o ⭐ recommended</td></tr>
-<tr><td><code>4o-mini</code></td><td>gpt-4o-mini — cheapest</td></tr>
-<tr><td><code>o1</code> / <code>o3-mini</code></td><td>reasoning models</td></tr>
-<tr><td rowspan="3"><b>Google</b></td><td><code>gemini</code></td><td>gemini-2.5-pro ⭐ recommended</td></tr>
-<tr><td><code>flash</code></td><td>gemini-2.5-flash — fast & cheap</td></tr>
-<tr><td><code>flash-lite</code></td><td>gemini-2.5-flash-lite</td></tr>
-<tr><td rowspan="2"><b>DeepSeek</b></td><td><code>deepseek</code></td><td>deepseek-chat (v3)</td></tr>
-<tr><td><code>r1</code></td><td>deepseek-reasoner — best reasoning</td></tr>
-<tr><td rowspan="3"><b>Mistral</b></td><td><code>mistral</code></td><td>mistral-large-latest</td></tr>
-<tr><td><code>codestral</code></td><td>codestral-latest — code specialist</td></tr>
-<tr><td><code>pixtral</code></td><td>pixtral-large — vision</td></tr>
-<tr><td rowspan="4"><b>Ollama (local)</b></td><td><code>llama</code> / <code>llama3.2</code></td><td>ollama/llama3.2 — no API key</td></tr>
-<tr><td><code>qwen</code></td><td>ollama/qwen2.5-coder</td></tr>
-<tr><td><code>phi4</code></td><td>ollama/phi4</td></tr>
-<tr><td><code>devstral</code></td><td>ollama/devstral — code expert</td></tr>
-<tr><td rowspan="2"><b>xAI</b></td><td><code>grok</code> / <code>grok3</code></td><td>xai/grok-3-beta</td></tr>
-<tr><td><code>grok3-mini</code></td><td>xai/grok-3-mini-beta</td></tr>
-<tr><td rowspan="3"><b>Groq</b></td><td><code>groq-llama</code></td><td>llama-3.3-70b-versatile — ultra-fast</td></tr>
-<tr><td><code>groq-mixtral</code></td><td>mixtral-8x7b-32768</td></tr>
-<tr><td><code>groq-gemma</code></td><td>gemma2-9b-it</td></tr>
-<tr><td rowspan="4"><b>OpenRouter (free)</b></td><td><code>llama-free</code></td><td>llama-3.1-8b-instruct:free</td></tr>
-<tr><td><code>deepseek-free</code></td><td>deepseek-r1-0528:free</td></tr>
-<tr><td><code>gemma-free</code></td><td>gemma-3-27b-it:free</td></tr>
-<tr><td><code>qwen-free</code></td><td>qwen3-235b-a22b:free</td></tr>
-<tr><td><b>AWS Bedrock</b></td><td><code>bedrock-claude</code></td><td>anthropic.claude-3-5-sonnet-v2</td></tr>
-<tr><td><b>Azure OpenAI</b></td><td><code>azure-gpt4o</code></td><td>azure/gpt-4o</td></tr>
-<tr><td><b>Cohere</b></td><td><code>command</code></td><td>cohere/command-r-plus</td></tr>
-</tbody>
-</table>
+- **OpenRouter:** models allowed by the authenticated account's preferences,
+  privacy settings, and guardrails.
+- **Ollama:** models installed on the local machine.
+- **Other providers:** current text/chat models registered by LiteLLM.
 
-> Run `/model list` inside Klyro to see all 90+ aliases.
+Run `/model` to see the current provider's models, then switch with the exact
+identifier shown. Optional personal aliases can be configured with `--alias`.
 
 ---
 
@@ -189,8 +168,8 @@ Klyro provides 43 built-in slash commands to manage your files, models, git repo
 ### 🧠 Model Configuration
 | Command | Description |
 |---|---|
-| **`/model <name>`** | Switch the main LLM mid-session — run `/model list` to browse all 90+ aliases |
-| **`/models <query>`** | Search for supported models matching a query string |
+| **`/model [name]`** | With no name, list models available from the current provider; with a name, switch the main LLM |
+| **`/model search <query>`** | Search models available from the current provider |
 | **`/editor-model <name>`**| Switch the model used specifically for writing file edits |
 | **`/weak-model <name>`** | Switch the model used for minor background tasks (e.g. summaries) |
 | **`/reasoning-effort <l/m/h>`**| Set the reasoning depth (`low`, `medium`, `high`) for reasoning models |
@@ -286,9 +265,12 @@ export OLLAMA_API_BASE=http://localhost:11434
 Tagged releases automatically publish to PyPI via GitHub Actions:
 
 ```bash
-git tag v1.0.6
-git push origin v1.0.6
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
+
+Publishing is gated by tests, package validation, and a clean wheel
+install/startup/uninstall smoke test.
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 

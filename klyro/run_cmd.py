@@ -1,20 +1,25 @@
 import os
 import platform
+import shlex
 import subprocess
 import sys
-import shlex
 from io import BytesIO
 
 import pexpect
 import psutil
 
 
-def run_cmd(command, verbose=False, error_print=None, cwd=None):
+def run_cmd(command, verbose=False, error_print=None, cwd=None, use_shell=False):
     try:
-        if sys.stdin.isatty() and hasattr(pexpect, "spawn") and platform.system() != "Windows":
+        if (
+            use_shell
+            and sys.stdin.isatty()
+            and hasattr(pexpect, "spawn")
+            and platform.system() != "Windows"
+        ):
             return run_cmd_pexpect(command, verbose, cwd)
 
-        return run_cmd_subprocess(command, verbose, cwd)
+        return run_cmd_subprocess(command, verbose, cwd, use_shell=use_shell)
     except OSError as e:
         error_message = f"Error occurred while running command '{command}': {str(e)}"
         if error_print is None:
@@ -40,25 +45,33 @@ def get_windows_parent_process_name():
         return None
 
 
-def run_cmd_subprocess(command, verbose=False, cwd=None, encoding=sys.stdout.encoding):
+def run_cmd_subprocess(
+    command,
+    verbose=False,
+    cwd=None,
+    encoding=sys.stdout.encoding,
+    use_shell=False,
+):
     if verbose:
         print("Using run_cmd_subprocess:", command)
 
     try:
-        shell = os.environ.get("SHELL", "/bin/sh")
         if verbose:
             print("Running command:", command)
-            print("SHELL:", shell)
+            print("Shell execution:", use_shell)
             if platform.system() == "Windows":
                 print("Parent process:", get_windows_parent_process_name())
 
-        command_arg = command if isinstance(command, str) else " ".join(command)
+        if isinstance(command, str) and not use_shell:
+            command_arg = shlex.split(command, posix=platform.system() != "Windows")
+        else:
+            command_arg = command
         process = subprocess.Popen(
             command_arg,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
-            shell=True,  # nosec B602 B604
+            shell=use_shell,
             encoding=encoding,
             errors="replace",
             bufsize=0,  # Set bufsize to 0 for unbuffered output

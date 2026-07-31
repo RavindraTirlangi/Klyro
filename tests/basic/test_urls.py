@@ -1,8 +1,10 @@
+import pytest
 import requests
 
 from klyro import urls
 
 
+@pytest.mark.network
 def test_urls():
     url_attributes = [
         attr
@@ -11,5 +13,5 @@ def test_urls():
     ]
     for attr in url_attributes:
         url = getattr(urls, attr)
-        response = requests.get(url)
+        response = requests.get(url, timeout=15)
         assert response.status_code == 200, f"URL {url} returned status code {response.status_code}"
