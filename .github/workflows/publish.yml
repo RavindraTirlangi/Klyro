@@ -56,6 +56,7 @@ jobs:
           /tmp/klyro-wheel-test/bin/klyro --version
           /tmp/klyro-wheel-test/bin/python -m klyro --version
           /tmp/klyro-wheel-test/bin/python -m pip uninstall -y klyro
+          cd /tmp
           /tmp/klyro-wheel-test/bin/python -c "import importlib.util; assert importlib.util.find_spec('klyro') is None"
 
       - name: Publish to PyPI
