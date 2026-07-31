@@ -46,14 +46,14 @@ def test_voice_init_invalid_device(mock_sounddevice):
     assert "not found" in str(exc.value)
 
 
-def test_voice_init_invalid_format():
+def test_voice_init_invalid_format(mock_sounddevice):
     with patch("klyro.voice.sf", MagicMock()):  # Need to mock sf to avoid SoundDeviceError
         with pytest.raises(ValueError) as exc:
             Voice(audio_format="invalid")
         assert "Unsupported audio format" in str(exc.value)
 
 
-def test_callback_processing():
+def test_callback_processing(mock_sounddevice):
     with patch("klyro.voice.sf", MagicMock()):  # Need to mock sf to avoid SoundDeviceError
         voice = Voice()
         voice.q = queue.Queue()
@@ -72,7 +72,7 @@ def test_callback_processing():
         assert not voice.q.empty()
 
 
-def test_get_prompt():
+def test_get_prompt(mock_sounddevice):
     with patch("klyro.voice.sf", MagicMock()):  # Need to mock sf to avoid SoundDeviceError
         voice = Voice()
         voice.start_time = os.times().elapsed
@@ -85,7 +85,7 @@ def test_get_prompt():
         assert "░" in prompt  # Should contain some empty blocks
 
 
-def test_record_and_transcribe_keyboard_interrupt():
+def test_record_and_transcribe_keyboard_interrupt(mock_sounddevice):
     with patch("klyro.voice.sf", MagicMock()):
         voice = Voice()
         with patch.object(voice, "raw_record_and_transcribe", side_effect=KeyboardInterrupt()):
@@ -93,7 +93,7 @@ def test_record_and_transcribe_keyboard_interrupt():
             assert result is None
 
 
-def test_record_and_transcribe_device_error():
+def test_record_and_transcribe_device_error(mock_sounddevice):
     with patch("klyro.voice.sf", MagicMock()):
         voice = Voice()
         with patch.object(

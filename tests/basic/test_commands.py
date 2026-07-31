@@ -1749,7 +1749,10 @@ class TestCommands(TestCase):
             test_file = home_dir / "test_read_only_file.txt"
             test_file.write_text("Test content")
 
-            with patch.dict(os.environ, {"USERPROFILE": str(home_dir)}):
+            with patch.dict(
+                os.environ,
+                {"HOME": str(home_dir), "USERPROFILE": str(home_dir)},
+            ):
                 # Test the /read-only command with a path in the user's home directory
                 relative_path = os.path.join("~", "test_read_only_file.txt")
                 commands.cmd_read_only(relative_path)
