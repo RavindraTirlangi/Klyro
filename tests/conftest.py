@@ -1,6 +1,5 @@
 import pytest
 
-
 PROVIDER_ENV_VARS = {
     "ANTHROPIC_API_KEY",
     "AWS_ACCESS_KEY_ID",
